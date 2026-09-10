@@ -2469,4 +2469,7 @@ async def async_setup_entry(
                     mapping,
                 )
             )
+    from .schema_entities import schema_entities
+
+    entities.extend(schema_entities(hass, data, Platform.SENSOR))
     async_add_entities(entities)

@@ -609,7 +609,22 @@
         }
     },
     "options": {
-        "error": {},
-        "step": {}
+        "error": {
+            "invalid_schema": "Esquema de producto no válido."
+        },
+        "step": {
+            "init": {
+                "menu_options": {
+                    "schema": "Definición del dispositivo"
+                }
+            },
+            "schema": {
+                "title": "Definición del dispositivo",
+                "description": "Pega el array JSON del esquema. No se descargan datos ni se empareja el dispositivo.",
+                "data": {
+                    "schema": "Esquema JSON"
+                }
+            }
+        }
     }
 }

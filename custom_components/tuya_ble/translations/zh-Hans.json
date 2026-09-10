@@ -609,7 +609,22 @@
         }
     },
     "options": {
-        "error": {},
-        "step": {}
+        "error": {
+            "invalid_schema": "产品架构无效。"
+        },
+        "step": {
+            "init": {
+                "menu_options": {
+                    "schema": "设备定义"
+                }
+            },
+            "schema": {
+                "title": "设备定义",
+                "description": "粘贴产品架构 JSON 数组。不会下载数据或配对设备。",
+                "data": {
+                    "schema": "架构 JSON"
+                }
+            }
+        }
     }
 }

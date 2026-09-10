@@ -666,14 +666,16 @@
             "invalid_local_key": "Local key looks invalid (at least 6 characters)",
             "invalid_device_id": "Device ID is required",
             "invalid_product_id": "Product ID is required",
-            "invalid_category": "Category is required"
+            "invalid_category": "Category is required",
+            "invalid_schema": "Invalid product schema."
         },
         "step": {
             "init": {
                 "title": "Local Tuya BLE options",
                 "menu_options": {
                     "manual": "Edit credentials manually",
-                    "settings": "Connection settings"
+                    "settings": "Connection settings",
+                    "schema": "Device definition"
                 }
             },
             "manual": {
@@ -696,6 +698,13 @@
                 "data": {
                     "keep_connection": "Keep BLE connection open",
                     "idle_disconnect_delay": "Idle disconnect delay (seconds)"
+                }
+            },
+            "schema": {
+                "title": "Device definition",
+                "description": "Paste the product schema JSON array. This does not download data or pair the device.",
+                "data": {
+                    "schema": "Schema JSON"
                 }
             }
         }

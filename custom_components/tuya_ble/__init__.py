@@ -172,6 +172,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         coordinator,
     )
 
+    if entry.options.get("schema"):
+        from .schema_entities import has_specialized_mapping
+
+        data = hass.data[DOMAIN][entry.entry_id]
+        data.use_schema_entities = not await hass.async_add_executor_job(
+            has_specialized_mapping, device, product_info
+        )
+
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
 

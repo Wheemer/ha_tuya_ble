@@ -273,6 +273,7 @@ class TuyaBLEDeviceFunction:
     dp_id: int
     type: DPType
     values: str | dict | list | None
+    name: str | None = None
 
     def __setattr__(self, name: str, value: str | dict | list | None):
         if name == "values":
@@ -417,15 +418,13 @@ class TuyaBLEDevice:
         return self._device_info is not None
 
     def append_functions(self, function: list[dict], status_range: list[dict]) -> None:
-        if function:
-            for f in function:
-                dpcode = f.get("code")
-                if dpcode:
-                    self.function[dpcode] = TuyaBLEDeviceFunction(**f)
-            for f in status_range:
-                dpcode = f.get("code")
-                if dpcode:
-                    self.status_range[dpcode] = TuyaBLEDeviceFunction(**f)
+        for definitions, target in (
+            (function, self.function),
+            (status_range, self.status_range),
+        ):
+            for definition in definitions or []:
+                if code := definition.get("code"):
+                    target[code] = TuyaBLEDeviceFunction(**definition)
 
     def update_description(self, description: TuyaBLEEntityDescription | None) -> None:
         if not description:

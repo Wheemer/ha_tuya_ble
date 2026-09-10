@@ -71,6 +71,14 @@ Other pairing protocols are rejected with an explanation. Unknown models remain 
 
 See [Supported Devices](DEVICES.md) for inherited entity mappings and experimental models. Device mappings and local-pairing compatibility are separate.
 
+### Local Product Schemas
+
+For a paired product without an existing entity mapping, open the integration's **Configure → Device definition** option and supply its native product-schema JSON array. The definition stays in Home Assistant. This is an advanced support path; the integration does not yet download schemas or retrieve them from a Bluetooth device.
+
+The schema creates basic sensors, binary sensors, switches, numbers, selects and text controls using its names, access modes, units, scaling and ranges. Declared entities are created even before readings arrive. Existing specialized mappings take precedence and retain their entity IDs; this fallback does not supplement or replace those mappings. Readable raw/bitmap data can be displayed, but opaque commands and compound types require a device-specific implementation.
+
+See [Product Schemas](SCHEMAS.md) for the format and implementation boundaries. Schema support does not add support for another pairing protocol or mean every Tuya product is supported.
+
 ## Migration From Tuya BLE
 
 Back up Home Assistant before replacing the integration. This fork intentionally keeps the internal domain and folder name **`tuya_ble`** so existing configuration entries and entities can be migrated in place.

@@ -199,6 +199,7 @@ class DPType(StrEnum):
     INTEGER = "Integer"
     JSON = "Json"
     RAW = "Raw"
+    BITMAP = "Bitmap"
     STRING = "String"
 
 

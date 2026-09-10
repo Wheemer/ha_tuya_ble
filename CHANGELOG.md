@@ -1,3 +1,10 @@
+# Unreleased
+
+- Add locally stored native product schemas and basic schema-driven entities for products without a specialized mapping.
+- Preserve schema access modes, units, enum ranges and integer scaling; validate definitions before saving.
+- Fix read-only status definitions being skipped when no writable functions are present.
+- Keep existing mappings and credential migration intact. Automatic schema retrieval is not included.
+
 # 0.13.0 — Local Tuya BLE
 
 - Publish the local-only fork as Local Tuya BLE.

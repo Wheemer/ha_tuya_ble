@@ -14,6 +14,7 @@ from homeassistant.helpers.entity import (
     EntityDescription,
     generate_entity_id,
 )
+from homeassistant.helpers.storage import Store
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
@@ -835,6 +836,7 @@ def get_short_address(address: str) -> str:
 async def get_device_readable_name(
     discovery_info: BluetoothServiceInfoBleak,
     manager: AbstaractTuyaBLEDeviceManager | None,
+    hass: HomeAssistant | None = None,
 ) -> str:
     """Readable name"""
     credentials: TuyaBLEDeviceCredentials | None = None
@@ -864,6 +866,29 @@ async def get_device_readable_name(
             if matches and len({product.name for product in matches}) == 1:
                 product_info = matches[0]
                 break
+    if hass is not None:
+        suffix = discovery_info.address.replace(":", "").lower()
+        cache = Store(hass, 1, f"tuya_ble.discovery.{suffix}")
+        if product_info is not None:
+            metadata = {"name": product_info.name}
+            if await cache.async_load() != metadata:
+                await cache.async_save(metadata)
+        else:
+            saved = await cache.async_load()
+            if saved and saved.get("name"):
+                product_info = TuyaBLEProductInfo(name=saved["name"])
+            else:
+                pairing = await Store(
+                    hass, 1, f"tuya_ble.local_pairing.{suffix}", private=True
+                ).async_load()
+                if pairing:
+                    matches = [
+                        c.products[pairing["product_id"]]
+                        for c in devices_database.values()
+                        if pairing.get("product_id") in c.products
+                    ]
+                    if matches and len({p.name for p in matches}) == 1:
+                        product_info = matches[0]
     short_address = get_short_address(discovery_info.address)
     if product_info:
         return "%s %s" % (product_info.name, short_address)

@@ -117,3 +117,37 @@ async def test_unrecognized_product_keeps_generic_discovery_name(payload):
     assert await get_device_readable_name(discovery, None) == "Tuya BLE Device DDEE01"
     discovery.name = "Garden Sensor"
     assert await get_device_readable_name(discovery, None) == "Garden Sensor DDEE01"
+
+
+async def test_name_survives_bound_advertisement_and_restart(hass):
+    from custom_components.tuya_ble.devices import get_device_readable_name
+    from homeassistant.helpers.storage import Store
+
+    discovery = advertisement({SERVICE_UUIDS[0]: b"\0gvygg3m8"})
+    assert (
+        await get_device_readable_name(discovery, None, hass)
+        == "SGS01 Plant Sensor DDEE01"
+    )
+    # Actual bound spare payload, with no manufacturer data in the passive report.
+    discovery.service_data = {SERVICE_UUIDS[0]: bytes.fromhex("00cd2095200e55487f")}
+    assert await Store(hass, 1, "tuya_ble.discovery.aabbccddee01").async_load() == {
+        "name": "SGS01 Plant Sensor"
+    }
+    assert (
+        await get_device_readable_name(discovery, None, hass)
+        == "SGS01 Plant Sensor DDEE01"
+    )
+
+
+async def test_bound_name_uses_saved_local_pairing_product(hass):
+    from custom_components.tuya_ble.devices import get_device_readable_name
+    from homeassistant.helpers.storage import Store
+
+    await Store(
+        hass, 1, "tuya_ble.local_pairing.aabbccddee01", private=True
+    ).async_save({"product_id": "gvygg3m8"})
+    discovery = advertisement({SERVICE_UUIDS[0]: bytes.fromhex("00cd2095200e55487f")})
+    assert (
+        await get_device_readable_name(discovery, None, hass)
+        == "SGS01 Plant Sensor DDEE01"
+    )

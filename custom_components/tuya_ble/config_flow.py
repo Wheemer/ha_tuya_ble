@@ -212,7 +212,7 @@ class TuyaBLEConfigFlow(ConfigFlow, domain=DOMAIN):
         self._discovery_info = discovery_info
         self._pending_address = discovery_info.address
         self.context["title_placeholders"] = {
-            "name": await get_device_readable_name(discovery_info, None)
+            "name": await get_device_readable_name(discovery_info, None, self.hass)
         }
         return await self.async_step_local_pair()
 
@@ -238,7 +238,7 @@ class TuyaBLEConfigFlow(ConfigFlow, domain=DOMAIN):
                     options={CONF_ADDRESS: address, **credentials},
                 )
         choices = {
-            a: await get_device_readable_name(i, None)
+            a: await get_device_readable_name(i, None, self.hass)
             for a, i in self._discovered_devices.items()
         }
         return self.async_show_form(
@@ -266,7 +266,7 @@ class TuyaBLEConfigFlow(ConfigFlow, domain=DOMAIN):
                 {
                     vol.Required(CONF_ADDRESS): vol.In(
                         {
-                            a: await get_device_readable_name(i, None)
+                            a: await get_device_readable_name(i, None, self.hass)
                             for a, i in self._discovered_devices.items()
                         }
                     )

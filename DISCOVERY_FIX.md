@@ -33,7 +33,9 @@ historical callback that produced the ignored entry. It does not prove the cause
 of all ignored discoveries. In particular, an unknown device carrying Tuya data
 is not established to be a false detection and remains eligible.
 
-There is no automatic account migration. Existing saved BLE credentials remain usable. This patch does not delete existing
+The version-2 migration preserves device identities, saved BLE credentials, and
+connection settings while removing obsolete account credentials. Entity registries
+are retained. This patch does not delete existing
 ignored or pending discoveries.
 
 ## Smart Life reference check

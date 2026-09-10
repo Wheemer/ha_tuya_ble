@@ -4,8 +4,11 @@ import ast
 import json
 from pathlib import Path
 from unittest.mock import Mock
+from pytest_homeassistant_custom_component.common import MockConfigEntry
+from custom_components.tuya_ble import async_migrate_entry
 from custom_components.tuya_ble.config_flow import TuyaBLEConfigFlow, TuyaBLEOptionsFlow
 from custom_components.tuya_ble.config_flow import _validate_manual
+from custom_components.tuya_ble.local_manager import LocalTuyaBLEDeviceManager
 
 
 def test_no_cloud_dependencies_or_imports():
@@ -49,3 +52,49 @@ def test_import_binary_saved_key():
     assert _validate_manual(data, errors)["local_key_hex"] == "00ff80123456"
     assert not errors
     assert _validate_manual({**data, "local_key": "anotherkey"}, errors) is None
+
+
+async def test_migration_preserves_identity_keys_and_policy(hass):
+    options = {
+        "uuid": "testidentity0001",
+        "local_key": "savedkey",
+        "sec_key": "1234567890abcdef",
+        "device_id": "v" * 22,
+        "product_id": "gvygg3m8",
+        "category": "zwjcy",
+        "keep_connection": False,
+        "idle_disconnect_delay": 123,
+        "username": "old-account",
+        "password": "obsolete-secret",
+        "access_secret": "obsolete-secret",
+    }
+    entry = MockConfigEntry(
+        domain="tuya_ble",
+        version=1,
+        data={"address": "AA:BB:CC:DD:EE:FF"},
+        options=options,
+        unique_id="AA:BB:CC:DD:EE:FF",
+        title="Existing plant",
+    )
+    entry.add_to_hass(hass)
+    assert await async_migrate_entry(hass, entry)
+    assert (
+        entry.version == 2
+        and entry.unique_id == "AA:BB:CC:DD:EE:FF"
+        and entry.title == "Existing plant"
+    )
+    assert entry.data == {"address": "AA:BB:CC:DD:EE:FF"}
+    assert dict(entry.options) == {
+        k: v
+        for k, v in options.items()
+        if k not in ("username", "password", "access_secret")
+    }
+    manager = LocalTuyaBLEDeviceManager(hass, entry.options)
+    credentials = await manager.get_device_credentials(
+        entry.unique_id, force_update=True
+    )
+    assert (
+        credentials.local_key == "savedkey"
+        and credentials.sec_key == "1234567890abcdef"
+    )
+    assert not hasattr(manager, "login")

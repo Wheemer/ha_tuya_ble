@@ -196,7 +196,7 @@ class TuyaBLEOptionsFlow(OptionsFlowWithConfigEntry):
 class TuyaBLEConfigFlow(ConfigFlow, domain=DOMAIN):
     """Discover first; ask for pairing mode only after Add."""
 
-    VERSION = 1
+    VERSION = 2
 
     def __init__(self):
         super().__init__()

@@ -36,7 +36,7 @@ The stock SGS01 (`gvygg3m8`, protocol 3.1) has passed a hardware test of local b
 
 If pairing mode expires, put the device into pairing mode again and retry. Generated credentials are saved privately using Home Assistant storage before the binding write. After an interrupted attempt, retries verify the same key rather than generating a replacement or blindly repeating the binding write. Back up Home Assistant's configuration: it contains the credentials needed to reconnect. Do not delete the pending pairing record to fix a timeout.
 
-This fork does not automatically migrate account configuration. Existing entries with saved BLE credentials can use those credentials locally.
+Existing configured devices, entity IDs, and unavailable sensors are preserved. On upgrade, obsolete account-login fields are removed from this integration while BLE keys, identity, metadata, and connection settings are retained. No devices are reset during this migration.
 
 ### Local only, including existing devices
 

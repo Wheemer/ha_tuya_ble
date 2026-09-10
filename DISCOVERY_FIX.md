@@ -14,9 +14,11 @@ Automatic discovery intentionally includes new and unmapped Tuya models, even
 without cloud credentials. Entity mappings determine the functionality available
 after setup; they are not an automatic-discovery allowlist. This preserves the
 path for users to discover new devices and contribute support through issues.
-Cloud metadata is optional during automatic discovery. If cache population or
-device-name lookup fails, setup uses the Bluetooth name and address suffix.
-An outage must not prevent an otherwise eligible advertisement from opening setup.
+Automatic discovery and the initial setup menu do not perform cloud lookups.
+Discovery uses the Bluetooth name and address suffix. Cloud cache population is
+deferred until the user explicitly selects cloud login. Manual setup with supplied
+device keys remains local. This does not implement keyless factory-fresh pairing:
+the BLE connection still needs the device credentials.
 
 ## Evidence and limits
 

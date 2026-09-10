@@ -1,7 +1,8 @@
 {
     "config": {
         "abort": {
-            "no_unconfigured_devices": "No unconfigured devices found."
+            "no_unconfigured_devices": "No unconfigured devices found.",
+            "not_supported": "The Bluetooth advertisement does not contain Tuya service data."
         },
         "error": {
             "device_not_registered": "Device is not registered in Tuya cloud",

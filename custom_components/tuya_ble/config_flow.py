@@ -82,6 +82,19 @@ from .cloud import HASSTuyaBLEDeviceManager, TuyaMobileIdentityMismatch
 
 _LOGGER = logging.getLogger(__name__)
 
+
+def _has_tuya_service_data(discovery: BluetoothServiceInfoBleak) -> bool:
+    """Require Tuya service data before offering a discovered device.
+
+    Do not trust a callback, local name, or cached service UUID alone. Keep
+    both supported UUIDs and opaque/encrypted payloads eligible; discovery
+    cannot establish device ownership or model support from these bytes.
+    """
+    return any(
+        len((discovery.service_data or {}).get(uuid, b"")) > 1 for uuid in SERVICE_UUIDS
+    )
+
+
 MOBILE_APP_OPTIONS = {
     TuyaMobileApp.SMART_LIFE.value: "Smart Life",
     TuyaMobileApp.TUYA_SMART.value: "Tuya Smart",
@@ -549,6 +562,8 @@ class TuyaBLEConfigFlow(ConfigFlow, domain=DOMAIN):
         self, discovery_info: BluetoothServiceInfoBleak
     ) -> FlowResult:
         """Handle the bluetooth discovery step."""
+        if not _has_tuya_service_data(discovery_info):
+            return self.async_abort(reason="not_supported")
         await self.async_set_unique_id(discovery_info.address)
         self._abort_if_unique_id_configured()
         self._discovery_info = discovery_info
@@ -671,8 +686,7 @@ class TuyaBLEConfigFlow(ConfigFlow, domain=DOMAIN):
             if (
                 discovery.address in current_addresses
                 or discovery.address in self._discovered_devices
-                or discovery.service_data is None
-                or not any(uuid in discovery.service_data for uuid in SERVICE_UUIDS)
+                or not _has_tuya_service_data(discovery)
             ):
                 continue
             self._discovered_devices[discovery.address] = discovery

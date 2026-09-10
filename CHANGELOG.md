@@ -1,4 +1,4 @@
-# Unreleased
+# 0.14.0b1 — Local product schemas (beta)
 
 - Add locally stored native product schemas and basic schema-driven entities for products without a specialized mapping.
 - Preserve schema access modes, units, enum ranges and integer scaling; validate definitions before saving.

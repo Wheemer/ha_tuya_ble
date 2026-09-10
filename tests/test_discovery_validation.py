@@ -151,3 +151,28 @@ async def test_bound_name_uses_saved_local_pairing_product(hass):
         await get_device_readable_name(discovery, None, hass)
         == "SGS01 Plant Sensor DDEE01"
     )
+
+
+async def test_pending_card_updates_from_later_product_advertisement(hass):
+    flow = TuyaBLEConfigFlow()
+    flow.hass = hass
+    flow.context = {"title_placeholders": {"name": "Tuya BLE Device DDEE01"}}
+    flow._pending_address = "AA:BB:CC:DD:EE:01"
+    remove = Mock()
+    with patch(
+        "custom_components.tuya_ble.config_flow.async_register_callback",
+        return_value=remove,
+    ) as register:
+        flow._watch_discovery_name()
+    listener = register.call_args.args[1]
+    listener(advertisement({SERVICE_UUIDS[0]: b"\0gvygg3m8"}), None)
+    await flow._name_task
+    assert flow.context["title_placeholders"]["name"] == "SGS01 Plant Sensor DDEE01"
+    # Opaque reports must not replace the automatically learned model name.
+    listener(
+        advertisement({SERVICE_UUIDS[0]: bytes.fromhex("00cd2095200e55487f")}), None
+    )
+    await flow._name_task
+    assert flow.context["title_placeholders"]["name"] == "SGS01 Plant Sensor DDEE01"
+    flow.async_remove()
+    remove.assert_called_once()

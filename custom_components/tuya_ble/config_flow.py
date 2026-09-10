@@ -5,11 +5,14 @@ from typing import Any
 from bleak.exc import BleakError
 import voluptuous as vol
 from homeassistant.config_entries import (
+    EVENT_FLOW_DISCOVERED,
     ConfigEntry,
     ConfigFlow,
     OptionsFlowWithConfigEntry,
 )
 from homeassistant.components.bluetooth import (
+    BluetoothScanningMode,
+    async_register_callback,
     BluetoothServiceInfoBleak,
     async_discovered_service_info,
 )
@@ -203,6 +206,8 @@ class TuyaBLEConfigFlow(ConfigFlow, domain=DOMAIN):
         self._discovery_info = None
         self._discovered_devices = {}
         self._pending_address = None
+        self._name_unsubscribe = None
+        self._name_task = None
 
     async def async_step_bluetooth(self, discovery_info):
         if not _has_tuya_service_data(discovery_info):
@@ -214,7 +219,43 @@ class TuyaBLEConfigFlow(ConfigFlow, domain=DOMAIN):
         self.context["title_placeholders"] = {
             "name": await get_device_readable_name(discovery_info, None, self.hass)
         }
+        self._watch_discovery_name()
         return await self.async_step_local_pair()
+
+    def _watch_discovery_name(self):
+        """Update a pending card when later advertisements identify the model."""
+        if self.hass is None or self._name_unsubscribe is not None:
+            return
+
+        @callback
+        def discovered(info, change):
+            if self._name_task is not None and not self._name_task.done():
+                return
+            self._name_task = self.hass.async_create_task(
+                self._refresh_discovery_name(info)
+            )
+
+        self._name_unsubscribe = async_register_callback(
+            self.hass,
+            discovered,
+            {"address": self._pending_address},
+            BluetoothScanningMode.PASSIVE,
+        )
+
+    async def _refresh_discovery_name(self, info):
+        name = await get_device_readable_name(info, None, self.hass)
+        if self.context.get("title_placeholders", {}).get("name") != name:
+            self.context["title_placeholders"] = {"name": name}
+            self.hass.bus.async_fire(EVENT_FLOW_DISCOVERED)
+
+    @callback
+    def async_remove(self):
+        if self._name_unsubscribe is not None:
+            self._name_unsubscribe()
+            self._name_unsubscribe = None
+        if self._name_task is not None:
+            self._name_task.cancel()
+        super().async_remove()
 
     async def async_step_user(self, user_input=None):
         return self.async_show_menu(

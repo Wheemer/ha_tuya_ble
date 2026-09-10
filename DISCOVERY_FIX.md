@@ -27,3 +27,22 @@ is not established to be a false detection and remains eligible.
 Existing config entries, entity registries, manual credential setup, and the
 connection/reconnection path are unchanged. This patch does not delete existing
 ignored or pending discoveries.
+
+## Smart Life reference check
+
+Local inspection of Smart Life Android 7.11.3 (build 860) found its single-BLE
+scanner forwards advertisements only after a protocol parser returns a device.
+That parser requires manufacturer data and dispatches several manufacturer IDs;
+the captured Dryer's ID 117 is not accepted. Its manufacturer-2000 A201 branch
+handles service payload shapes matching the two observed Tuya advertisements,
+including format bytes 0 and 1. This is static analysis, not a replay of the app.
+
+The relevant recovered classes are `com.thingclips.sdk.ble.core.scan.BleSingleScanner`
+and `com.thingclips.sdk.bluetooth.bqpdppq`. JADX reported errors in the
+overall decompilation; the reference is not a complete recovered source tree.
+No proprietary APK or decompiled source is included in this repository.
+
+This supports validating advertisement contents before presenting setup. It does
+not establish that a manufacturer-2000-only rule or the A201 parser's exact lengths
+would preserve all devices supported through the integration's FD50 path. The
+patch therefore retains its narrower service-data requirement.

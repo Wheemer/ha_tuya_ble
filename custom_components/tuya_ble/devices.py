@@ -29,7 +29,7 @@ from .tuya_ble import (
     TuyaBLEDeviceCredentials,
 )
 
-from .cloud import HASSTuyaBLEDeviceManager
+from .local_manager import LocalTuyaBLEDeviceManager
 from .const import (
     DEVICE_DEF_MANUFACTURER,
     DOMAIN,
@@ -340,7 +340,7 @@ class TuyaBLEData:
     title: str
     device: TuyaBLEDevice
     product: TuyaBLEProductInfo
-    manager: HASSTuyaBLEDeviceManager
+    manager: LocalTuyaBLEDeviceManager
     coordinator: TuyaBLECoordinator
 
 

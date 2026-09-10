@@ -3,49 +3,9 @@
         "abort": {
             "no_unconfigured_devices": "Nenhum dispositivo não configurado encontrado."
         },
-        "error": {
-            "device_not_registered": "O dispositivo não está registrado na nuvem da Tuya",
-            "invalid_auth": "Autenticação inválida",
-            "mobile_account_locked": "A conta Tuya está temporariamente bloqueada",
-            "mobile_captcha_required": "A Tuya exige um captcha interativo. Insira manualmente as credenciais do dispositivo.",
-            "mobile_credentials_required": "A recuperação automática das credenciais falhou. Insira manualmente as credenciais do dispositivo.",
-            "mobile_device_not_found": "O dispositivo selecionado não foi encontrado na conta do aplicativo móvel",
-            "mobile_endpoint_unsupported": "O aplicativo móvel selecionado não aceita mais login por senha. Insira manualmente as credenciais do dispositivo.",
-            "mobile_identity_mismatch": "As credenciais móveis não correspondem ao dispositivo retornado pela Tuya IoT",
-            "mobile_invalid_auth": "A conta ou a senha do aplicativo móvel foi rejeitada",
-            "mobile_invalid_credentials": "O aplicativo móvel retornou chaves de dispositivo incompletas ou inválidas",
-            "mobile_mfa_required": "A Tuya exige autenticação multifator. Insira manualmente as credenciais do dispositivo.",
-            "mobile_profile_expired": "O perfil integrado do aplicativo móvel não é mais aceito pela Tuya",
-            "mobile_transport_error": "Não foi possível acessar o serviço móvel da Tuya",
-            "login_error": "Erro de login ({code}): {msg}"
-        },
+        "error": {},
         "flow_title": "{name}",
-        "step": {
-            "device": {
-                "data": {
-                    "address": "Dispositivo Tuya BLE"
-                },
-                "description": "Selecione o dispositivo Tuya BLE para configurar. O dispositivo deve ser registrado na nuvem usando o aplicativo móvel. É melhor desvincular o dispositivo do gateway Bluetooth Tuya, se houver."
-            },
-            "login": {
-                "data": {
-                    "access_id": "ID de acesso Tuya IoT",
-                    "access_secret": "Segredo de acesso Tuya IoT",
-                    "sec_key": "Tuya BLE SecKey (opcional)",
-                    "country_code": "País",
-                    "password": "Senha",
-                    "username": "Conta"
-                },
-                "description": "O Tuya BLE requer a obtenção da chave de criptografia da nuvem da Tuya. Quase todos os dispositivos só precisam acessar a nuvem uma vez durante a configuração.\n\nConsulte a documentação da integração Tuya para recuperar as credenciais da nuvem {url}\n\nInsira suas credenciais da Tuya."
-            },
-            "mobile_app": {
-                "title": "Aplicativo móvel",
-                "description": "A nuvem Tuya IoT não retornou uma chave de segurança. Selecione a conta do aplicativo que possui o dispositivo para que o Home Assistant recupere uma vez o par completo de chaves.",
-                "data": {
-                    "mobile_app": "Aplicativo"
-                }
-            }
-        }
+        "step": {}
     },
     "entity": {
         "binary_sensor": {
@@ -644,40 +604,7 @@
         }
     },
     "options": {
-        "error": {
-            "device_not_registered": "O dispositivo não está registrado na nuvem da Tuya",
-            "invalid_auth": "Autenticação inválida",
-            "mobile_account_locked": "A conta Tuya está temporariamente bloqueada",
-            "mobile_captcha_required": "A Tuya exige um captcha interativo. Insira manualmente as credenciais do dispositivo.",
-            "mobile_credentials_required": "A recuperação automática das credenciais falhou. Insira manualmente as credenciais do dispositivo.",
-            "mobile_device_not_found": "O dispositivo selecionado não foi encontrado na conta do aplicativo móvel",
-            "mobile_endpoint_unsupported": "O aplicativo móvel selecionado não aceita mais login por senha. Insira manualmente as credenciais do dispositivo.",
-            "mobile_identity_mismatch": "As credenciais móveis não correspondem ao dispositivo retornado pela Tuya IoT",
-            "mobile_invalid_auth": "A conta ou a senha do aplicativo móvel foi rejeitada",
-            "mobile_invalid_credentials": "O aplicativo móvel retornou chaves de dispositivo incompletas ou inválidas",
-            "mobile_mfa_required": "A Tuya exige autenticação multifator. Insira manualmente as credenciais do dispositivo.",
-            "mobile_profile_expired": "O perfil integrado do aplicativo móvel não é mais aceito pela Tuya",
-            "mobile_transport_error": "Não foi possível acessar o serviço móvel da Tuya",
-            "login_error": "Erro de login ({code}): {msg}"
-        },
-        "step": {
-            "login": {
-                "data": {
-                    "access_id": "ID de acesso Tuya IoT",
-                    "access_secret": "Segredo de acesso Tuya IoT",
-                    "country_code": "País",
-                    "password": "Senha",
-                    "username": "Conta"
-                },
-                "description": "Consulte a documentação da integração Tuya para recuperar as credenciais da nuvem {url}\n\nInsira suas credenciais da Tuya."
-            },
-            "mobile_app": {
-                "title": "Aplicativo móvel",
-                "description": "A nuvem Tuya IoT não retornou uma chave de segurança. Selecione a conta do aplicativo que possui o dispositivo para que o Home Assistant recupere uma vez um novo par de chaves.",
-                "data": {
-                    "mobile_app": "Aplicativo"
-                }
-            }
-        }
+        "error": {},
+        "step": {}
     }
 }

@@ -26,7 +26,7 @@ Place the `custom_components` folder in your configuration directory (or add its
 ### Local pairing in this fork (experimental)
 
 1. Home Assistant discovers nearby advertising Tuya BLE devices. Discovery does not require an account, a supported-model allowlist, or putting the device into pairing mode first.
-2. Click **Add**, then **Pair locally (no account required)**.
+2. Click **Add** on the discovered device. Manual integration setup also offers **Pair locally** or **Import existing credentials**.
 3. The setup dialog asks you to put the device into pairing mode. Do that, close Smart Life or other connected apps, and submit the form to continue.
 4. Home Assistant discovers the internal device identity, generates and saves a local key, pairs the device, and verifies that key on a fresh connection. Existing device mappings create the entities.
 
@@ -36,25 +36,15 @@ The stock SGS01 (`gvygg3m8`, protocol 3.1) has passed a hardware test of local b
 
 If pairing mode expires, put the device into pairing mode again and retry. Generated credentials are saved privately using Home Assistant storage before the binding write. After an interrupted attempt, retries verify the same key rather than generating a replacement or blindly repeating the binding write. Back up Home Assistant's configuration: it contains the credentials needed to reconnect. Do not delete the pending pairing record to fix a timeout.
 
-Existing configured devices, entity IDs, and unavailable sensors are not migrated or removed by adding this setup option. Keep the cloud/manual options for devices already paired elsewhere or using other protocol variants.
+Existing configured devices, entity IDs, and unavailable sensors are preserved. On upgrade, obsolete account-login fields are removed from this integration while BLE keys, identity, metadata, and connection settings are retained. No devices are reset during this migration.
 
-### Existing cloud or manual credentials
+### Local only, including existing devices
 
-After adding to Home Assistant integration should discover all supported Bluetooth devices, or you can add discoverable devices manually.
+This fork has no Tuya cloud login, mobile-app login, credential lookup, account refresh, or dependency on the official Tuya integration. Device setup and communication are local. Installing the integration and its Python dependencies still requires obtaining those files, as with other Home Assistant integrations.
 
-The existing credential-based setup remains available. Credentials can be supplied manually or retrieved using the Tuya IOT cloud account. For the optional cloud path, refer to the previous official Tuya integration [documentation](https://web.archive.org/web/20231228044831/https://www.home-assistant.io/integrations/tuya/).
+Existing saved credentials continue working without account access. You can also import credentials you already have from a trusted backup. Some protocol variants require both `localKey` and `secKey`; importing them does not log in to an app.
 
-Newer protocol-v2 devices require a matching 16-character `localKey` and
-`secKey`. If Tuya IoT OpenAPI omits `secKey`, setup asks whether the device is
-owned by **Smart Life** or **Tuya Smart**, signs in to that mobile service once,
-and imports both keys atomically. Mobile session tokens are not stored, and the
-integration never logs in to the mobile API in the background.
-
-Tuya's mobile API is private and its versioned application profiles can expire.
-Interactive captcha, MFA, social, and QR logins are not automated. If automatic
-retrieval fails, the existing manual setup form is prefilled with the OpenAPI
-device data so the key pair can be completed from another trusted source.
-Classic devices that genuinely do not use `secKey` can leave it empty.
+Local provisioning uses the standard classic protocol-3 exchange, without an SGS01-specific restriction. Other pairing protocols need their own implementation; discovery remains open to them. There is no cloud fallback when a pairing protocol is unsupported.
 
 ## Supported devices list
 

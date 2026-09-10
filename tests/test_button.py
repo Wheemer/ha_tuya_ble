@@ -31,7 +31,7 @@ async def test_button(hass: HomeAssistant) -> None:
     # Set up our own custom init for button to avoid mapping issues in __init__.py's init
     from pytest_homeassistant_custom_component.common import MockConfigEntry
     from custom_components.tuya_ble.const import DOMAIN
-    from custom_components.tuya_ble.cloud import HASSTuyaBLEDeviceManager
+    from custom_components.tuya_ble.local_manager import LocalTuyaBLEDeviceManager
     from custom_components.tuya_ble.devices import (
         TuyaBLEDevice,
         TuyaBLEProductInfo,
@@ -51,7 +51,7 @@ async def test_button(hass: HomeAssistant) -> None:
     entry.add_to_hass(hass)
 
     ble_device = BLEDevice(name="bob", address="11:22:33", details="", rssi=-50)
-    manager = HASSTuyaBLEDeviceManager(hass, entry.options.copy())
+    manager = LocalTuyaBLEDeviceManager(hass, entry.options.copy())
     device = TuyaBLEDevice(manager, ble_device)
     await device.initialize()
     product_info = TuyaBLEProductInfo("Fake Product", lock=1)
@@ -104,7 +104,7 @@ async def test_oyqux5vv_raw_unlock(hass: HomeAssistant) -> None:
     """Test raw bluetooth unlock button for LA-01 (oyqux5vv)."""
     from pytest_homeassistant_custom_component.common import MockConfigEntry
     from custom_components.tuya_ble.const import DOMAIN
-    from custom_components.tuya_ble.cloud import HASSTuyaBLEDeviceManager
+    from custom_components.tuya_ble.local_manager import LocalTuyaBLEDeviceManager
     from custom_components.tuya_ble.devices import (
         TuyaBLEDevice,
         TuyaBLEProductInfo,
@@ -124,7 +124,7 @@ async def test_oyqux5vv_raw_unlock(hass: HomeAssistant) -> None:
     entry.add_to_hass(hass)
 
     ble_device = BLEDevice(name="bob", address="11:22:33", details="", rssi=-50)
-    manager = HASSTuyaBLEDeviceManager(hass, entry.options.copy())
+    manager = LocalTuyaBLEDeviceManager(hass, entry.options.copy())
     device = TuyaBLEDevice(manager, ble_device)
     await device.initialize()
     # Explicitly set product_id to oyqux5vv in device_info so button platform uses it
@@ -192,7 +192,7 @@ async def test_button_fixed_enum_value(hass: HomeAssistant) -> None:
     """Test a button writing a fixed enum value instead of toggling a bool."""
     from pytest_homeassistant_custom_component.common import MockConfigEntry
     from custom_components.tuya_ble.const import DOMAIN, PARKSIDE_MOWER_COMMANDS
-    from custom_components.tuya_ble.cloud import HASSTuyaBLEDeviceManager
+    from custom_components.tuya_ble.local_manager import LocalTuyaBLEDeviceManager
     from custom_components.tuya_ble.devices import (
         TuyaBLEDevice,
         TuyaBLEProductInfo,
@@ -213,7 +213,7 @@ async def test_button_fixed_enum_value(hass: HomeAssistant) -> None:
     entry.add_to_hass(hass)
 
     ble_device = BLEDevice(name="bob", address="11:22:33", details="", rssi=-50)
-    manager = HASSTuyaBLEDeviceManager(hass, entry.options.copy())
+    manager = LocalTuyaBLEDeviceManager(hass, entry.options.copy())
     device = TuyaBLEDevice(manager, ble_device)
     await device.initialize()
     product_info = TuyaBLEProductInfo("Robot Mower")

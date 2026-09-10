@@ -21,7 +21,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 
 from .tuya_ble import TuyaBLEDevice
 
-from .cloud import HASSTuyaBLEDeviceManager
+from .local_manager import LocalTuyaBLEDeviceManager, local_options
 from .const import (
     CONF_CATEGORY,
     CONF_LOCAL_KEY,
@@ -70,6 +70,20 @@ CREDENTIAL_OPTION_KEYS = (
 DISCONNECT_TIMEOUT = 15
 
 
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Drop obsolete account fields without changing BLE identity or entities."""
+    if entry.version > 2:
+        return False
+    if entry.version < 2:
+        hass.config_entries.async_update_entry(
+            entry,
+            data=local_options(entry.data),
+            options=local_options(entry.options),
+            version=2,
+        )
+    return True
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Tuya BLE from a config entry."""
 
@@ -82,7 +96,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             f"Could not find Tuya BLE device with address {address}"
         )
 
-    manager = HASSTuyaBLEDeviceManager(hass, entry.options.copy())
+    manager = LocalTuyaBLEDeviceManager(hass, entry.options.copy())
     device = TuyaBLEDevice(
         manager,
         ble_device,

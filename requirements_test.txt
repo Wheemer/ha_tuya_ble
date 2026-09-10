@@ -8,10 +8,6 @@ pylint-strict-informational==0.1
 pylint==2.8.2
 pytest-asyncio
 pytest-cov
-tuya-iot-py-sdk==0.6.6
-tuya-mobile==1.2.0
-pycountry>23.0.0
 pyserial
 PyCryptodome
-tuya-device-sharing-sdk
 pytest-homeassistant-custom-component>0.13.0

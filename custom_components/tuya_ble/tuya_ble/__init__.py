@@ -14,7 +14,6 @@ from .manager import (
 )
 from .tuya_ble import TuyaBLEDataPoint, TuyaBLEDevice, TuyaBLEEntityDescription
 
-
 __all__ = [
     "AbstaractTuyaBLEDeviceManager",
     "TuyaBLEDataPoint",

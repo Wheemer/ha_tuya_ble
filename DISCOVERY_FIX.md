@@ -6,19 +6,18 @@ checked only whether a supported service-data key existed, including empty data.
 
 The flow now requires more than the format byte in the service data for either
 supported UUID, matching the existing advertisement parser's minimum length.
-Rejected advertisements abort before a unique ID is assigned or cloud credentials
-are consulted. Both supported UUIDs and opaque/encrypted payloads remain eligible.
+Rejected advertisements abort before a unique ID is assigned. Both supported UUIDs and opaque/encrypted payloads remain eligible.
 No manufacturer, name, product allowlist, or ownership restriction was added.
 
 Automatic discovery intentionally includes new and unmapped Tuya models, even
 without cloud credentials. Entity mappings determine the functionality available
 after setup; they are not an automatic-discovery allowlist. This preserves the
 path for users to discover new devices and contribute support through issues.
-Automatic discovery and the initial setup menu do not perform cloud lookups.
-Discovery uses the Bluetooth name and address suffix. Cloud cache population is
-deferred until the user explicitly selects cloud login. Manual setup with supplied
-device keys remains local. This does not implement keyless factory-fresh pairing:
-the BLE connection still needs the device credentials.
+Setup and operation are now entirely local. Discovery opens a pairing-mode
+prompt; submitting it provisions supported classic protocol-3 devices with a
+locally generated key. Existing saved credentials can also be used. Cloud login,
+account lookup, and cloud SDK dependencies have been removed. Other protocol
+variants remain discoverable but local provisioning is not yet verified for them.
 
 ## Evidence and limits
 
@@ -34,8 +33,9 @@ historical callback that produced the ignored entry. It does not prove the cause
 of all ignored discoveries. In particular, an unknown device carrying Tuya data
 is not established to be a false detection and remains eligible.
 
-Existing config entries, entity registries, manual credential setup, and the
-connection/reconnection path are unchanged. This patch does not delete existing
+The version-2 migration preserves device identities, saved BLE credentials, and
+connection settings while removing obsolete account credentials. Entity registries
+are retained. This patch does not delete existing
 ignored or pending discoveries.
 
 ## Smart Life reference check

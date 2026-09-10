@@ -6,7 +6,7 @@ import pytest
 from bleak.backends.device import BLEDevice
 from bleak.exc import BleakError
 from custom_components.tuya_ble.tuya_ble import TuyaBLEDevice
-from custom_components.tuya_ble.cloud import HASSTuyaBLEDeviceManager
+from custom_components.tuya_ble.local_manager import LocalTuyaBLEDeviceManager
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from homeassistant.core import HomeAssistant
 from custom_components.tuya_ble.const import DOMAIN
@@ -34,7 +34,7 @@ async def test_ensure_connected_bluetooth_shutdown(hass: HomeAssistant) -> None:
     entry.add_to_hass(hass)
 
     ble_device = BLEDevice(name="bob", address="11:22:33:44:55:66", details="", rssi=-50)
-    manager = HASSTuyaBLEDeviceManager(hass, entry.options.copy())
+    manager = LocalTuyaBLEDeviceManager(hass, entry.options.copy())
     device = TuyaBLEDevice(manager, ble_device)
     await device.initialize()
 
@@ -63,7 +63,7 @@ async def test_reconnect_bluetooth_shutdown(hass: HomeAssistant) -> None:
     entry.add_to_hass(hass)
 
     ble_device = BLEDevice(name="bob", address="11:22:33:44:55:66", details="", rssi=-50)
-    manager = HASSTuyaBLEDeviceManager(hass, entry.options.copy())
+    manager = LocalTuyaBLEDeviceManager(hass, entry.options.copy())
     device = TuyaBLEDevice(manager, ble_device)
     await device.initialize()
 
@@ -90,7 +90,7 @@ async def test_send_packets_locked_bluetooth_shutdown(hass: HomeAssistant) -> No
     entry.add_to_hass(hass)
 
     ble_device = BLEDevice(name="bob", address="11:22:33:44:55:66", details="", rssi=-50)
-    manager = HASSTuyaBLEDeviceManager(hass, entry.options.copy())
+    manager = LocalTuyaBLEDeviceManager(hass, entry.options.copy())
     device = TuyaBLEDevice(manager, ble_device)
     await device.initialize()
 

@@ -6,7 +6,7 @@ from bleak.backends.device import BLEDevice
 from custom_components.tuya_ble.tuya_ble import TuyaBLEDevice
 from custom_components.tuya_ble.tuya_ble.manager import TuyaBLEDeviceCredentials
 from custom_components.tuya_ble.tuya_ble.const import TuyaBLECode
-from custom_components.tuya_ble.cloud import HASSTuyaBLEDeviceManager
+from custom_components.tuya_ble.local_manager import LocalTuyaBLEDeviceManager
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from homeassistant.core import HomeAssistant
 from custom_components.tuya_ble.const import DOMAIN
@@ -38,7 +38,7 @@ async def test_gatt_characteristic_selection_classic(hass: HomeAssistant) -> Non
     ble_device = BLEDevice(
         name="bob", address="11:22:33:44:55:66", details="", rssi=-50
     )
-    manager = HASSTuyaBLEDeviceManager(hass, entry.options.copy())
+    manager = LocalTuyaBLEDeviceManager(hass, entry.options.copy())
 
     credentials = TuyaBLEDeviceCredentials(
         uuid="12345678901234567890",
@@ -109,7 +109,7 @@ async def test_gatt_characteristic_selection_fd50(hass: HomeAssistant) -> None:
     ble_device = BLEDevice(
         name="bob", address="11:22:33:44:55:66", details="", rssi=-50
     )
-    manager = HASSTuyaBLEDeviceManager(hass, entry.options.copy())
+    manager = LocalTuyaBLEDeviceManager(hass, entry.options.copy())
 
     credentials = TuyaBLEDeviceCredentials(
         uuid="12345678901234567890",
@@ -187,7 +187,7 @@ async def test_yzd02b_fd50_device_info_handshake(hass: HomeAssistant) -> None:
     ble_device = BLEDevice(
         name="bob", address="11:22:33:44:55:66", details="", rssi=-50
     )
-    manager = HASSTuyaBLEDeviceManager(hass, entry.options.copy())
+    manager = LocalTuyaBLEDeviceManager(hass, entry.options.copy())
     credentials = TuyaBLEDeviceCredentials(
         uuid="12345678901234567890",
         local_key="wV[NcWGUSFF`dSgO",

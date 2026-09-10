@@ -9,7 +9,7 @@ from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.tuya_ble import async_unload_entry
-from custom_components.tuya_ble.cloud import HASSTuyaBLEDeviceManager
+from custom_components.tuya_ble.local_manager import LocalTuyaBLEDeviceManager
 from custom_components.tuya_ble.const import DOMAIN
 from custom_components.tuya_ble.tuya_ble import TuyaBLEDevice
 
@@ -47,7 +47,7 @@ async def _make_device(hass: HomeAssistant) -> TuyaBLEDevice:
     )
     entry.add_to_hass(hass)
     ble_device = BLEDevice(name="bob", address=ADDRESS, details="", rssi=-50)
-    manager = HASSTuyaBLEDeviceManager(hass, entry.options.copy())
+    manager = LocalTuyaBLEDeviceManager(hass, entry.options.copy())
     device = TuyaBLEDevice(manager, ble_device)
     await device.initialize()
     return device

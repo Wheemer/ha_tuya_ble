@@ -35,7 +35,7 @@ async def test_vacuum_bool_control(hass: HomeAssistant) -> None:
     """Test vacuum entity with basic boolean start/stop control and status mapping."""
     from pytest_homeassistant_custom_component.common import MockConfigEntry
     from custom_components.tuya_ble.const import DOMAIN
-    from custom_components.tuya_ble.cloud import HASSTuyaBLEDeviceManager
+    from custom_components.tuya_ble.local_manager import LocalTuyaBLEDeviceManager
     from custom_components.tuya_ble.devices import (
         TuyaBLEDevice,
         TuyaBLEProductInfo,
@@ -55,7 +55,7 @@ async def test_vacuum_bool_control(hass: HomeAssistant) -> None:
     entry.add_to_hass(hass)
 
     ble_device = BLEDevice(name="bob", address="11:22:33", details="", rssi=-50)
-    manager = HASSTuyaBLEDeviceManager(hass, entry.options.copy())
+    manager = LocalTuyaBLEDeviceManager(hass, entry.options.copy())
     device = TuyaBLEDevice(manager, ble_device)
     await device.initialize()
     product_info = TuyaBLEProductInfo("Fake Vacuum Product")
@@ -182,7 +182,7 @@ async def test_vacuum_enum_control(hass: HomeAssistant) -> None:
     """Test vacuum entity with enum-based start/stop/pause control and custom return home value."""
     from pytest_homeassistant_custom_component.common import MockConfigEntry
     from custom_components.tuya_ble.const import DOMAIN
-    from custom_components.tuya_ble.cloud import HASSTuyaBLEDeviceManager
+    from custom_components.tuya_ble.local_manager import LocalTuyaBLEDeviceManager
     from custom_components.tuya_ble.devices import (
         TuyaBLEDevice,
         TuyaBLEProductInfo,
@@ -202,7 +202,7 @@ async def test_vacuum_enum_control(hass: HomeAssistant) -> None:
     entry.add_to_hass(hass)
 
     ble_device = BLEDevice(name="bob", address="11:22:33", details="", rssi=-50)
-    manager = HASSTuyaBLEDeviceManager(hass, entry.options.copy())
+    manager = LocalTuyaBLEDeviceManager(hass, entry.options.copy())
     device = TuyaBLEDevice(manager, ble_device)
     await device.initialize()
     product_info = TuyaBLEProductInfo("Fake Vacuum Product")
@@ -273,7 +273,7 @@ async def test_vacuum_fallback_control(hass: HomeAssistant) -> None:
     """Test vacuum entity fallback behavior for pause/return to base when DPs are missing."""
     from pytest_homeassistant_custom_component.common import MockConfigEntry
     from custom_components.tuya_ble.const import DOMAIN
-    from custom_components.tuya_ble.cloud import HASSTuyaBLEDeviceManager
+    from custom_components.tuya_ble.local_manager import LocalTuyaBLEDeviceManager
     from custom_components.tuya_ble.devices import (
         TuyaBLEDevice,
         TuyaBLEProductInfo,
@@ -293,7 +293,7 @@ async def test_vacuum_fallback_control(hass: HomeAssistant) -> None:
     entry.add_to_hass(hass)
 
     ble_device = BLEDevice(name="bob", address="11:22:33", details="", rssi=-50)
-    manager = HASSTuyaBLEDeviceManager(hass, entry.options.copy())
+    manager = LocalTuyaBLEDeviceManager(hass, entry.options.copy())
     device = TuyaBLEDevice(manager, ble_device)
     await device.initialize()
     product_info = TuyaBLEProductInfo("Fake Vacuum Product")

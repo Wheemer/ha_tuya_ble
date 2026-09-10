@@ -51,7 +51,7 @@ async def _init_mower(hass: HomeAssistant):
     """Set up a lawn mower entity using the Parkside mapping."""
     from pytest_homeassistant_custom_component.common import MockConfigEntry
     from custom_components.tuya_ble.const import DOMAIN
-    from custom_components.tuya_ble.cloud import HASSTuyaBLEDeviceManager
+    from custom_components.tuya_ble.local_manager import LocalTuyaBLEDeviceManager
     from custom_components.tuya_ble.devices import (
         TuyaBLECoordinator,
         TuyaBLEData,
@@ -71,7 +71,7 @@ async def _init_mower(hass: HomeAssistant):
     entry.add_to_hass(hass)
 
     ble_device = BLEDevice(name="bob", address="11:22:33", details="", rssi=-50)
-    manager = HASSTuyaBLEDeviceManager(hass, entry.options.copy())
+    manager = LocalTuyaBLEDeviceManager(hass, entry.options.copy())
     device = TuyaBLEDevice(manager, ble_device)
     await device.initialize()
     product_info = TuyaBLEProductInfo("Fake Mower Product")

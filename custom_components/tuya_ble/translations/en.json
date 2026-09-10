@@ -5,20 +5,6 @@
             "not_supported": "The Bluetooth advertisement does not contain Tuya service data."
         },
         "error": {
-            "device_not_registered": "Device is not registered in Tuya cloud",
-            "invalid_auth": "Invalid authentication",
-            "mobile_account_locked": "The Tuya account is temporarily locked",
-            "mobile_captcha_required": "Tuya requires an interactive captcha. Enter the device credentials manually.",
-            "mobile_credentials_required": "Automatic credential retrieval failed. Enter the device credentials manually.",
-            "mobile_device_not_found": "The selected device was not found in the mobile application account",
-            "mobile_endpoint_unsupported": "The selected mobile application no longer supports password login. Enter the device credentials manually.",
-            "mobile_identity_mismatch": "The mobile credentials do not match the device returned by Tuya IoT",
-            "mobile_invalid_auth": "The mobile application account or password was rejected",
-            "mobile_invalid_credentials": "The mobile application returned incomplete or invalid device keys",
-            "mobile_mfa_required": "Tuya requires multi-factor authentication. Enter the device credentials manually.",
-            "mobile_profile_expired": "The bundled mobile application profile is no longer accepted by Tuya",
-            "mobile_transport_error": "The Tuya mobile service could not be reached",
-            "login_error": "Login error ({code}): {msg}",
             "invalid_uuid": "UUID looks invalid",
             "invalid_local_key": "Local key looks invalid (at least 6 characters)",
             "invalid_device_id": "Device ID is required",
@@ -33,45 +19,21 @@
         },
         "flow_title": "{name}",
         "step": {
-            "device": {
-                "data": {
-                    "address": "Tuya BLE device"
-                },
-                "description": "Select Tuya BLE device to setup. Device must be registered in the cloud using the mobile application. It's better to unbind the device from Tuya Bluetooth gateway, if any."
-            },
-            "login": {
-                "data": {
-                    "access_id": "Tuya IoT Access ID",
-                    "access_secret": "Tuya IoT Access Secret",
-                    "sec_key": "Tuya BLE SecKey (optional)",
-                    "country_code": "Country",
-                    "password": "Password",
-                    "username": "Account"
-                },
-                "description": "This optional setup path retrieves existing credentials from Tuya cloud. For supported unbound devices, use local pairing instead. Cloud setup documentation: {url}"
-            },
-            "mobile_app": {
-                "title": "Mobile application",
-                "description": "The Tuya IoT cloud did not return a security key. Select the application account that owns this device so Home Assistant can retrieve the complete key pair once.",
-                "data": {
-                    "mobile_app": "Application"
-                }
-            },
             "user": {
                 "title": "Tuya BLE",
-                "description": "How should the device credentials (device ID, UUID, local key) be obtained?",
+                "description": "Pair a device locally or import credentials you already have. No account or internet access is required.",
                 "menu_options": {
                     "local_device": "Pair locally (no account required)",
-                    "manual": "Enter existing credentials manually",
-                    "login": "Fetch existing credentials from Tuya cloud"
+                    "manual": "Enter existing credentials manually"
                 }
             },
             "manual": {
                 "title": "Manual credentials",
-                "description": "Enter the credentials of the Tuya BLE device. You can copy them from a previous setup (`.storage/core.config_entries`, `options` of the entry) or from the Tuya IoT platform. The device must not be connected to a phone or Tuya gateway while Home Assistant talks to it.",
+                "description": "Import existing device credentials from a trusted backup. This form does not contact any vendor service. Close any app currently connected to the device.",
                 "data": {
                     "address": "Tuya BLE device",
                     "uuid": "UUID (e.g. tuya2a3142…)",
+                    "local_key_hex": "Saved six-byte key (12 hex digits, optional)",
                     "local_key": "Local key",
                     "sec_key": "Security key (newer BLE devices only, optional)",
                     "device_id": "Device ID",
@@ -691,20 +653,6 @@
     },
     "options": {
         "error": {
-            "device_not_registered": "Device is not registered in Tuya cloud",
-            "invalid_auth": "Invalid authentication",
-            "mobile_account_locked": "The Tuya account is temporarily locked",
-            "mobile_captcha_required": "Tuya requires an interactive captcha. Enter the device credentials manually.",
-            "mobile_credentials_required": "Automatic credential retrieval failed. Enter the device credentials manually.",
-            "mobile_device_not_found": "The selected device was not found in the mobile application account",
-            "mobile_endpoint_unsupported": "The selected mobile application no longer supports password login. Enter the device credentials manually.",
-            "mobile_identity_mismatch": "The mobile credentials do not match the device returned by Tuya IoT",
-            "mobile_invalid_auth": "The mobile application account or password was rejected",
-            "mobile_invalid_credentials": "The mobile application returned incomplete or invalid device keys",
-            "mobile_mfa_required": "Tuya requires multi-factor authentication. Enter the device credentials manually.",
-            "mobile_profile_expired": "The bundled mobile application profile is no longer accepted by Tuya",
-            "mobile_transport_error": "The Tuya mobile service could not be reached",
-            "login_error": "Login error ({code}): {msg}",
             "invalid_uuid": "UUID looks invalid",
             "invalid_local_key": "Local key looks invalid (at least 6 characters)",
             "invalid_device_id": "Device ID is required",
@@ -712,36 +660,19 @@
             "invalid_category": "Category is required"
         },
         "step": {
-            "login": {
-                "data": {
-                    "access_id": "Tuya IoT Access ID",
-                    "access_secret": "Tuya IoT Access Secret",
-                    "country_code": "Country",
-                    "password": "Password",
-                    "username": "Account"
-                },
-                "description": "Refer to documentation of Tuya integration to retrieve the cloud credentials {url}\n\nEnter your Tuya credentials."
-            },
-            "mobile_app": {
-                "title": "Mobile application",
-                "description": "The Tuya IoT cloud did not return a security key. Select the application account that owns this device so Home Assistant can retrieve a fresh key pair once.",
-                "data": {
-                    "mobile_app": "Application"
-                }
-            },
             "init": {
                 "title": "Tuya BLE options",
                 "menu_options": {
-                    "login": "Refresh credentials from Tuya IoT cloud",
                     "manual": "Edit credentials manually",
                     "settings": "Connection settings"
                 }
             },
             "manual": {
                 "title": "Manual credentials",
-                "description": "Edit the stored credentials. Use this after re-pairing the device in the Smart Life app (it then has a new local key).",
+                "description": "Edit or restore locally stored device credentials. Supply either the text key or the six-byte hexadecimal key from your backup, not both.",
                 "data": {
                     "uuid": "UUID (e.g. tuya2a3142…)",
+                    "local_key_hex": "Saved six-byte key (12 hex digits, optional)",
                     "local_key": "Local key",
                     "sec_key": "Security key (newer BLE devices only, optional)",
                     "device_id": "Device ID",

@@ -12,7 +12,7 @@ from custom_components.tuya_ble import local_pairing as lp
 from custom_components.tuya_ble.config_flow import TuyaBLEConfigFlow
 from custom_components.tuya_ble.diagnostics import TO_REDACT
 from custom_components.tuya_ble.tuya_ble.security import TuyaBLESecurityMaterial
-from custom_components.tuya_ble.cloud import HASSTuyaBLEDeviceManager
+from custom_components.tuya_ble.local_manager import LocalTuyaBLEDeviceManager
 
 IDENTITY = {
     "uuid": "testidentity0001",
@@ -113,7 +113,7 @@ async def test_success_creates_existing_runtime_credentials_without_cloud():
         await flow.async_step_local_pair({})
     options = flow.async_create_entry.call_args.kwargs["options"]
     assert options["category"] and options["local_key_hex"] == saved["local_key_hex"]
-    manager = HASSTuyaBLEDeviceManager(Mock(), options)
+    manager = LocalTuyaBLEDeviceManager(Mock(), options)
     manager.login = AsyncMock(side_effect=AssertionError("cloud access"))
     credentials = await manager.get_device_credentials(ADDRESS)
     assert credentials.local_key_hex == saved["local_key_hex"]

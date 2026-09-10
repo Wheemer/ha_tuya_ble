@@ -27,7 +27,7 @@ from custom_components.tuya_ble.devices import (
     TuyaBLEDevice,
     TuyaBLEProductInfo,
 )
-from custom_components.tuya_ble.cloud import HASSTuyaBLEDeviceManager
+from custom_components.tuya_ble.local_manager import LocalTuyaBLEDeviceManager
 from custom_components.tuya_ble.binary_sensor import TuyaBLEBinarySensorMapping
 from custom_components.tuya_ble.tuya_ble import TuyaBLEDataPointType
 
@@ -82,7 +82,7 @@ async def init(
     entry.add_to_hass(hass)
 
     ble_device = BLEDevice(name="bob", address="11:22:33", details="", rssi=-50)
-    manager = HASSTuyaBLEDeviceManager(hass, entry.options.copy())
+    manager = LocalTuyaBLEDeviceManager(hass, entry.options.copy())
     device = TuyaBLEDevice(manager, ble_device)
     await device.initialize()
     product_info = TuyaBLEProductInfo("Fake Product")

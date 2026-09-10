@@ -12,8 +12,7 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 import pytest
 
-from custom_components.tuya_ble.cloud import HASSTuyaBLEDeviceManager
-from custom_components.tuya_ble.config_flow import _try_login
+from custom_components.tuya_ble.local_manager import LocalTuyaBLEDeviceManager
 from custom_components.tuya_ble.const import (
     CONF_ACCESS_ID,
     CONF_ACCESS_SECRET,
@@ -25,7 +24,6 @@ from custom_components.tuya_ble.const import (
     CONF_PRODUCT_NAME,
     CONF_SEC_KEY,
     CONF_UUID,
-    TUYA_COUNTRIES,
 )
 from custom_components.tuya_ble.diagnostics import TO_REDACT
 from custom_components.tuya_ble.tuya_ble import (
@@ -147,7 +145,7 @@ async def test_sec_key_is_loaded_from_saved_device_options(
         CONF_PRODUCT_MODEL: "TEST",
         CONF_PRODUCT_NAME: "Security test",
     }
-    manager = HASSTuyaBLEDeviceManager(hass, data)
+    manager = LocalTuyaBLEDeviceManager(hass, data)
 
     credentials = await manager.get_device_credentials("11:22:33:44:55:66")
 
@@ -155,31 +153,6 @@ async def test_sec_key_is_loaded_from_saved_device_options(
     assert credentials.sec_key == SEC_KEY
 
 
-async def test_login_flow_preserves_optional_sec_key() -> None:
-    """The password-style config field is persisted with device options."""
-    manager = Mock(spec=HASSTuyaBLEDeviceManager)
-    manager._login = AsyncMock(return_value={"success": True})
-    errors = {}
-    placeholders = {}
-    country = TUYA_COUNTRIES[0]
-
-    data = await _try_login(
-        manager,
-        {
-            CONF_COUNTRY_CODE: country.name,
-            CONF_ACCESS_ID: "test-access-id",
-            CONF_ACCESS_SECRET: "test-access-secret",
-            CONF_USERNAME: "test@example.com",
-            CONF_PASSWORD: "test-password",
-            CONF_SEC_KEY: SEC_KEY,
-        },
-        errors,
-        placeholders,
-    )
-
-    assert data is not None
-    assert data[CONF_SEC_KEY] == SEC_KEY
-    assert not errors
 
 
 def test_credentials_and_diagnostics_redact_both_keys() -> None:
@@ -208,52 +181,3 @@ def test_credentials_and_diagnostics_redact_both_keys() -> None:
     assert CONF_LOCAL_KEY in TO_REDACT
     assert CONF_SEC_KEY in TO_REDACT
     assert CONF_ACCESS_SECRET in TO_REDACT
-
-
-async def test_login_and_build_cache_skip_manual_entries(
-    hass: HomeAssistant,
-) -> None:
-    """Manual entries lacking Tuya Cloud login keys return {} on login and are skipped in build_cache."""
-    manual_data = {
-        CONF_UUID: "1234567890abcdef",
-        CONF_LOCAL_KEY: LOCAL_KEY,
-        CONF_DEVICE_ID: "12345678901234567890",
-        CONF_CATEGORY: "test",
-        CONF_PRODUCT_ID: "test-product",
-        CONF_DEVICE_NAME: "Manual Device",
-    }
-    manager = HASSTuyaBLEDeviceManager(hass, manual_data)
-
-    # Calling _login on manual entry data returns empty dict without throwing missing scheme error
-    result = await manager._login(manual_data, True)
-    assert result == {}
-
-    # Mock config entries with a manual BLE config entry lacking login keys
-    entry = Mock()
-    entry.options = manual_data
-    original_async_entries = hass.config_entries.async_entries
-    hass.config_entries.async_entries = Mock(side_effect=lambda domain=None: [entry] if domain == "tuya_ble" else [])
-
-    try:
-        # build_cache runs without raising missing scheme error
-        await manager.build_cache()
-    finally:
-        hass.config_entries.async_entries = original_async_entries
-
-
-async def test_config_flow_handles_build_cache_exceptions(
-    hass: HomeAssistant,
-) -> None:
-    """ConfigFlow async_step_user continues even if build_cache raises an exception."""
-    from custom_components.tuya_ble.config_flow import TuyaBLEConfigFlow
-
-    flow = TuyaBLEConfigFlow()
-    flow.hass = hass
-
-    with AsyncMock() as mock_manager:
-        mock_manager.build_cache.side_effect = Exception("Cloud API unreachable")
-        flow._manager = mock_manager
-
-        result = await flow.async_step_user()
-        assert result["type"] == "menu"
-        assert result["step_id"] == "user"

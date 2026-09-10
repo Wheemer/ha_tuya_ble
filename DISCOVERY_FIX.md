@@ -10,6 +10,11 @@ Rejected advertisements abort before a unique ID is assigned or cloud credential
 are consulted. Both supported UUIDs and opaque/encrypted payloads remain eligible.
 No manufacturer, name, product allowlist, or ownership restriction was added.
 
+Automatic discovery intentionally includes new and unmapped Tuya models, even
+without cloud credentials. Entity mappings determine the functionality available
+after setup; they are not an automatic-discovery allowlist. This preserves the
+path for users to discover new devices and contribute support through issues.
+
 ## Evidence and limits
 
 A Home Assistant diagnostic capture on 2026-09-10 showed a device named Dryer

@@ -405,6 +405,7 @@ class TuyaBLEDevice:
                 self._security_material = TuyaBLESecurityMaterial(
                     self._device_info.local_key,
                     self._device_info.sec_key,
+                    self._device_info.local_key_hex,
                 )
                 self._local_key = self._security_material.pairing_login_key
                 self._login_key = self._security_material.login_key

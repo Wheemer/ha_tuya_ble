@@ -61,7 +61,6 @@ from custom_components.tuya_ble.const import (
 from custom_components.tuya_ble.mobile import get_mobile_endpoint
 from custom_components.tuya_ble.tuya_ble import TuyaBLEDeviceCredentials
 
-
 ADDRESS = "11:22:33:44:55:66"
 UUID = "fixture-uuid"
 DEVICE_ID = "fixture-device"
@@ -486,7 +485,9 @@ async def test_options_cloud_pair_bypasses_mobile_retrieval(
         options=old_options,
         title="Fixture",
     )
+    entry.add_to_hass(hass)
     flow = TuyaBLEOptionsFlow(entry)
+    flow.handler = entry.entry_id
     flow.hass = hass
 
     async def cloud_lookup(
@@ -543,7 +544,9 @@ async def test_options_mobile_refresh_is_transactional_and_reuses_saved_app(
         options=old_options,
         title="Fixture",
     )
+    entry.add_to_hass(hass)
     flow = TuyaBLEOptionsFlow(entry)
+    flow.handler = entry.entry_id
     flow.hass = hass
 
     async def cloud_lookup(
@@ -611,7 +614,9 @@ async def test_options_refresh_uses_saved_identity_when_cloud_loses_device(
         options=old_options,
         title="Fixture",
     )
+    entry.add_to_hass(hass)
     flow = TuyaBLEOptionsFlow(entry)
+    flow.handler = entry.entry_id
     flow.hass = hass
     observed: dict[str, TuyaBLEDeviceCredentials] = {}
 
@@ -687,7 +692,9 @@ async def test_options_mobile_failure_shares_prefilled_manual_fallback(
         options=old_options,
         title="Fixture",
     )
+    entry.add_to_hass(hass)
     flow = TuyaBLEOptionsFlow(entry)
+    flow.handler = entry.entry_id
     flow.hass = hass
 
     async def cloud_lookup(

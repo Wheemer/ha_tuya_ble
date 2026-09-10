@@ -25,6 +25,7 @@ from .cloud import HASSTuyaBLEDeviceManager
 from .const import (
     CONF_CATEGORY,
     CONF_LOCAL_KEY,
+    CONF_LOCAL_KEY_HEX,
     CONF_PRODUCT_ID,
     CONF_SEC_KEY,
     CONF_UUID,
@@ -56,6 +57,7 @@ PLATFORMS: list[Platform] = [
 _LOGGER = logging.getLogger(__name__)
 
 CREDENTIAL_OPTION_KEYS = (
+    CONF_LOCAL_KEY_HEX,
     CONF_UUID,
     CONF_LOCAL_KEY,
     CONF_SEC_KEY,

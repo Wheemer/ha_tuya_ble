@@ -12,8 +12,15 @@ class TuyaBLESecurityMaterial:
 
     local_key: str = field(repr=False)
     sec_key: str | None = field(default=None, repr=False)
+    local_key_hex: str | None = field(default=None, repr=False)
 
     def __post_init__(self) -> None:
+        if self.local_key_hex is not None:
+            if self.sec_key or len(bytes.fromhex(self.local_key_hex)) != 6:
+                raise ValueError(
+                    "Local pairing requires exactly six key bytes and no SecKey"
+                )
+            return
         try:
             local_key = self.local_key.encode("ascii")
             sec_key = self.sec_key.encode("ascii") if self.sec_key else None
@@ -35,6 +42,8 @@ class TuyaBLESecurityMaterial:
     @property
     def pairing_login_key(self) -> bytes:
         """Return the six-byte login key carried by the pair request."""
+        if self.local_key_hex is not None:
+            return bytes.fromhex(self.local_key_hex)
         return self.local_key.encode("ascii")[:6]
 
     @property

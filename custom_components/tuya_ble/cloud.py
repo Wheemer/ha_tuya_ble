@@ -41,6 +41,7 @@ from .const import (
     CONF_PRODUCT_MODEL,
     CONF_UUID,
     CONF_LOCAL_KEY,
+    CONF_LOCAL_KEY_HEX,
     CONF_MOBILE_APP,
     CONF_SEC_KEY,
     CONF_CATEGORY,
@@ -357,6 +358,7 @@ class HASSTuyaBLEDeviceManager(AbstaractTuyaBLEDeviceManager):
                 credentials.get(CONF_FUNCTIONS, []),
                 credentials.get(CONF_STATUS_RANGE, []),
                 sec_key=sec_key,
+                local_key_hex=credentials.get(CONF_LOCAL_KEY_HEX),
             )
             _LOGGER.debug("Retrieved: %s", result)
             if save_data:

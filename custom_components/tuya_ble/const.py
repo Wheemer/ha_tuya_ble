@@ -7,7 +7,6 @@ from enum import StrEnum
 from tuya_iot import TuyaCloudOpenAPIEndpoint
 from typing_extensions import Final
 
-
 DOMAIN: Final = "tuya_ble"
 
 DEVICE_METADATA_UUIDS: Final = "uuids"
@@ -17,6 +16,7 @@ SET_DISCONNECTED_DELAY = 10 * 60
 
 CONF_UUID: Final = "uuid"
 CONF_LOCAL_KEY: Final = "local_key"
+CONF_LOCAL_KEY_HEX: Final = "local_key_hex"
 CONF_SEC_KEY: Final = "sec_key"
 
 # Connection policy (entry options)

@@ -777,6 +777,7 @@ devices_database: dict[str, TuyaBLECategoryInfo] = {
     ),
     "zwjcy": TuyaBLECategoryInfo(
         products={
+            "gvygg3m8": TuyaBLEProductInfo(name="SGS01 Plant Sensor"),
             "jabotj1z": TuyaBLEProductInfo(
                 name="SRB-PM01 Soil Moisture Sensor",
             ),

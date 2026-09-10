@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from bleak.exc import BleakError
 import pycountry
 from typing import Any
 
@@ -64,6 +65,7 @@ from .const import (
     CONF_ENDPOINT,
     CONF_FUNCTIONS,
     CONF_LOCAL_KEY,
+    CONF_LOCAL_KEY_HEX,
     CONF_PRODUCT_ID,
     CONF_PRODUCT_MODEL,
     CONF_PRODUCT_NAME,
@@ -77,7 +79,8 @@ from .const import (
     DEFAULT_KEEP_CONNECTION,
     DOMAIN,
 )
-from .devices import get_device_readable_name
+from .devices import get_device_readable_name, devices_database
+from .local_pairing import LocalPairingError, pair_local
 from .cloud import HASSTuyaBLEDeviceManager, TuyaMobileIdentityMismatch
 
 _LOGGER = logging.getLogger(__name__)
@@ -101,6 +104,7 @@ MOBILE_APP_OPTIONS = {
 }
 
 DEVICE_DATA_KEYS = (
+    CONF_LOCAL_KEY_HEX,
     CONF_UUID,
     CONF_LOCAL_KEY,
     CONF_SEC_KEY,
@@ -436,6 +440,7 @@ class TuyaBLEOptionsFlow(OptionsFlowWithConfigEntry):
                     else self.config_entry.options
                 )
                 new_options.pop(CONF_SEC_KEY, None)
+                new_options.pop(CONF_LOCAL_KEY_HEX, None)
                 new_options.update(creds)
                 return self.async_create_entry(
                     title=self.config_entry.title,
@@ -581,7 +586,85 @@ class TuyaBLEConfigFlow(ConfigFlow, domain=DOMAIN):
             self._manager = HASSTuyaBLEDeviceManager(self.hass, self._data)
         return self.async_show_menu(
             step_id="user",
-            menu_options=["login", "manual"],
+            menu_options=["local_device", "login", "manual"],
+        )
+
+    async def async_step_local_device(self, user_input=None) -> FlowResult:
+        """Choose a discovered device without requiring pairing mode yet."""
+        if self._discovery_info:
+            self._pending_address = self._discovery_info.address
+            return await self.async_step_local_pair()
+        self._collect_discovered_devices()
+        if not self._discovered_devices:
+            return self.async_abort(reason="no_unconfigured_devices")
+        if user_input is not None:
+            self._pending_address = user_input[CONF_ADDRESS]
+            await self.async_set_unique_id(self._pending_address)
+            self._abort_if_unique_id_configured()
+            return await self.async_step_local_pair()
+        return self.async_show_form(
+            step_id="local_device",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_ADDRESS): vol.In(
+                        {
+                            a: f"{i.name or 'Tuya BLE'} ({a})"
+                            for a, i in self._discovered_devices.items()
+                        }
+                    )
+                }
+            ),
+        )
+
+    async def async_step_local_pair(self, user_input=None) -> FlowResult:
+        """Ask for pairing mode after discovery, then provision locally."""
+        errors = {}
+        if user_input is not None:
+            try:
+                saved = await pair_local(self.hass, self._pending_address)
+            except LocalPairingError as err:
+                errors["base"] = str(err)
+            except (BleakError, TimeoutError):
+                errors["base"] = "local_cannot_connect"
+            else:
+                category = next(
+                    (
+                        name
+                        for name, info in devices_database.items()
+                        if saved["product_id"] in info.products
+                    ),
+                    "",
+                )
+                product = (
+                    devices_database[category].products[saved["product_id"]]
+                    if category
+                    else None
+                )
+                title = f"{product.name if product else 'Tuya BLE'} {self._pending_address[-8:].replace(':', '')}"
+                options = {
+                    CONF_ADDRESS: self._pending_address,
+                    CONF_UUID: saved["uuid"],
+                    CONF_LOCAL_KEY: "",
+                    CONF_LOCAL_KEY_HEX: saved["local_key_hex"],
+                    CONF_DEVICE_ID: saved["device_id"],
+                    CONF_PRODUCT_ID: saved["product_id"],
+                    CONF_CATEGORY: category,
+                    CONF_DEVICE_NAME: title,
+                    CONF_PRODUCT_NAME: product.name if product else saved["product_id"],
+                    CONF_PRODUCT_MODEL: "",
+                    CONF_FUNCTIONS: [],
+                    CONF_STATUS_RANGE: [],
+                }
+                return self.async_create_entry(
+                    title=title,
+                    data={CONF_ADDRESS: self._pending_address},
+                    options=options,
+                )
+        return self.async_show_form(
+            step_id="local_pair",
+            data_schema=vol.Schema({}),
+            errors=errors,
+            description_placeholders={"address": self._pending_address},
         )
 
     async def async_step_manual(

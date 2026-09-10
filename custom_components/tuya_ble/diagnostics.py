@@ -15,6 +15,7 @@ from .const import (
     CONF_ACCESS_ID,
     CONF_ACCESS_SECRET,
     CONF_LOCAL_KEY,
+    CONF_LOCAL_KEY_HEX,
     CONF_SEC_KEY,
     CONF_UUID,
     DOMAIN,
@@ -22,6 +23,7 @@ from .const import (
 from .devices import TuyaBLEData
 
 TO_REDACT = {
+    CONF_LOCAL_KEY_HEX,
     CONF_ACCESS_ID,
     CONF_ACCESS_SECRET,
     CONF_USERNAME,

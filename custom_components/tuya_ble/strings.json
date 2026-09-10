@@ -23,7 +23,13 @@
             "invalid_local_key": "Local key looks invalid (at least 6 characters)",
             "invalid_device_id": "Device ID is required",
             "invalid_product_id": "Product ID is required",
-            "invalid_category": "Category is required"
+            "invalid_category": "Category is required",
+            "local_identity_missing": "The device identity was not received. Put the device into pairing mode and retry near a Bluetooth receiver.",
+            "local_protocol_unsupported": "This device uses a pairing protocol that is not yet supported locally. Existing-credential setup is still available.",
+            "local_already_bound": "This device is already bound and Home Assistant has no locally saved key. Use its existing credentials, or unbind/reset this device yourself before local pairing.",
+            "local_identity_mismatch": "The device identity does not match the saved pairing attempt. No binding was attempted.",
+            "local_cannot_connect": "Could not complete the Bluetooth connection. Put the device into pairing mode again and retry. Any saved pairing key will be reused.",
+            "local_verification_failed": "The saved key could not be verified. Retry in pairing mode; Home Assistant will check the existing key without repeating an uncertain binding write. If verification keeps failing, keep the saved credentials and report the problem."
         },
         "flow_title": "{name}",
         "step": {
@@ -42,7 +48,7 @@
                     "password": "Password",
                     "username": "Account"
                 },
-                "description": "Tuya BLE requires obtaining encryption key from Tuya cloud. Almost all devices only need to access the cloud once during setup.\n\nRefer to documentation of Tuya integration to retrieve the cloud credentials {url}\n\nEnter your Tuya credentials."
+                "description": "This optional setup path retrieves existing credentials from Tuya cloud. For supported unbound devices, use local pairing instead. Cloud setup documentation: {url}"
             },
             "mobile_app": {
                 "title": "Mobile application",
@@ -55,8 +61,9 @@
                 "title": "Tuya BLE",
                 "description": "How should the device credentials (device ID, UUID, local key) be obtained?",
                 "menu_options": {
-                    "login": "Fetch from Tuya IoT cloud (recommended for first setup)",
-                    "manual": "Enter manually (no cloud access needed)"
+                    "local_device": "Pair locally (no account required)",
+                    "manual": "Enter existing credentials manually",
+                    "login": "Fetch existing credentials from Tuya cloud"
                 }
             },
             "manual": {
@@ -72,6 +79,17 @@
                     "category": "Category (e.g. szjqr for Fingerbots)",
                     "device_name": "Device name (optional)"
                 }
+            },
+            "local_device": {
+                "data": {
+                    "address": "Tuya BLE device"
+                },
+                "description": "Select a discovered device to pair locally.",
+                "title": "Choose a device"
+            },
+            "local_pair": {
+                "description": "Device: {address}. Put this device into pairing mode now, close any phone app connected to it, then select Submit to continue. Home Assistant will generate and save its key locally. If the device stops flashing, put it into pairing mode again and retry. Local pairing is experimental and currently supports the classic protocol-3 exchange. Unknown models can be paired, but need a device mapping before measurement entities can be created.",
+                "title": "Put the device into pairing mode"
             }
         }
     },

@@ -23,9 +23,26 @@ Place the `custom_components` folder in your configuration directory (or add its
 
 ## Usage
 
+### Local pairing in this fork (experimental)
+
+1. Home Assistant discovers nearby advertising Tuya BLE devices. Discovery does not require an account, a supported-model allowlist, or putting the device into pairing mode first.
+2. Click **Add**, then **Pair locally (no account required)**.
+3. The setup dialog asks you to put the device into pairing mode. Do that, close Smart Life or other connected apps, and submit the form to continue.
+4. Home Assistant discovers the internal device identity, generates and saves a local key, pairs the device, and verifies that key on a fresh connection. Existing device mappings create the entities.
+
+No firmware flashing, vendor account, cloud lookup, or manual key extraction is used by this path. Bluetooth must be in range of Home Assistant or a connectable proxy. A device must be advertising to be discovered; battery insertion or a button press may be needed to wake some models.
+
+The stock SGS01 (`gvygg3m8`, protocol 3.1) has passed a hardware test of local binding and subsequent encrypted reconnection. The tested sensor had previously been removed from Smart Life and advertised as unbound. This is not yet proof for every protocol-3 device, a never-registered factory-new device, sustained measurements, or power-cycle recovery. Other protocol variants are detected but local provisioning currently rejects them with an explanation. Unknown models are not hidden; they may pair successfully but still require measurement mappings.
+
+If pairing mode expires, put the device into pairing mode again and retry. Generated credentials are saved privately using Home Assistant storage before the binding write. After an interrupted attempt, retries verify the same key rather than generating a replacement or blindly repeating the binding write. Back up Home Assistant's configuration: it contains the credentials needed to reconnect. Do not delete the pending pairing record to fix a timeout.
+
+Existing configured devices, entity IDs, and unavailable sensors are not migrated or removed by adding this setup option. Keep the cloud/manual options for devices already paired elsewhere or using other protocol variants.
+
+### Existing cloud or manual credentials
+
 After adding to Home Assistant integration should discover all supported Bluetooth devices, or you can add discoverable devices manually.
 
-The integration works locally, but connection to Tuya BLE device requires device ID and encryption key from Tuya IOT cloud. It could be obtained using the same credentials as in the previous official Tuya integration. To obtain the credentials, please refer to official Tuya integration [documentation](https://web.archive.org/web/20231228044831/https://www.home-assistant.io/integrations/tuya/) [[1]](https://github.com/home-assistant/home-assistant.io/blob/a4e6d4819f1db584cc66ba2082508d3978f83f7e/source/_integrations/tuya.markdown)
+The existing credential-based setup remains available. Credentials can be supplied manually or retrieved using the Tuya IOT cloud account. For the optional cloud path, refer to the previous official Tuya integration [documentation](https://web.archive.org/web/20231228044831/https://www.home-assistant.io/integrations/tuya/).
 
 Newer protocol-v2 devices require a matching 16-character `localKey` and
 `secKey`. If Tuya IoT OpenAPI omits `secKey`, setup asks whether the device is

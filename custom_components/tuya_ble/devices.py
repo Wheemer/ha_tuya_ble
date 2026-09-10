@@ -22,6 +22,7 @@ from homeassistant.helpers.update_coordinator import (
 
 from home_assistant_bluetooth import BluetoothServiceInfoBleak
 from .tuya_ble import (
+    SERVICE_UUIDS,
     AbstaractTuyaBLEDeviceManager,
     TuyaBLEDataPoint,
     TuyaBLEDataPointType,
@@ -845,12 +846,33 @@ async def get_device_readable_name(
                 credentials.category,
                 credentials.product_id,
             )
+    if product_info is None:
+        for service_uuid in SERVICE_UUIDS:
+            payload = (discovery_info.service_data or {}).get(service_uuid, b"")
+            # Format 0 exposes a product ID. Format 1 is opaque product-key data.
+            if len(payload) <= 1 or payload[0] != 0:
+                continue
+            try:
+                product_id = payload[1:].decode("ascii")
+            except UnicodeDecodeError:
+                continue
+            matches = [
+                category.products[product_id]
+                for category in devices_database.values()
+                if product_id in category.products
+            ]
+            if matches and len({product.name for product in matches}) == 1:
+                product_info = matches[0]
+                break
     short_address = get_short_address(discovery_info.address)
     if product_info:
         return "%s %s" % (product_info.name, short_address)
     if credentials:
         return "%s %s" % (credentials.device_name, short_address)
-    return "%s %s" % (discovery_info.device.name, short_address)
+    advertised_name = discovery_info.name or discovery_info.device.name
+    if not advertised_name or advertised_name.upper() == "TY":
+        advertised_name = "Tuya BLE Device"
+    return "%s %s" % (advertised_name, short_address)
 
 
 def get_device_info(device: TuyaBLEDevice) -> DeviceInfo | None:

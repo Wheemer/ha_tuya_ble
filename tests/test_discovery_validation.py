@@ -90,3 +90,30 @@ def test_manual_discovery_filters_and_keeps_existing_entries():
     ):
         flow._collect_discovered_devices()
     assert not flow._discovered_devices
+
+
+@pytest.mark.parametrize("uuid", SERVICE_UUIDS)
+async def test_discovery_names_known_product_without_pairing_or_credentials(uuid):
+    from custom_components.tuya_ble.devices import get_device_readable_name
+
+    discovery = advertisement({uuid: b"\0gvygg3m8"})
+    assert (
+        await get_device_readable_name(discovery, None) == "SGS01 Plant Sensor DDEE01"
+    )
+    flow = TuyaBLEConfigFlow()
+    flow.async_set_unique_id = AsyncMock()
+    flow._abort_if_unique_id_configured = Mock()
+    flow.context = {}
+    flow.async_show_form = Mock()
+    await flow.async_step_bluetooth(discovery)
+    assert flow.context["title_placeholders"]["name"] == "SGS01 Plant Sensor DDEE01"
+
+
+@pytest.mark.parametrize("payload", [b"\0newmodel", b"\1gvygg3m8", b"\0\xff"])
+async def test_unrecognized_product_keeps_generic_discovery_name(payload):
+    from custom_components.tuya_ble.devices import get_device_readable_name
+
+    discovery = advertisement({SERVICE_UUIDS[0]: payload})
+    assert await get_device_readable_name(discovery, None) == "Tuya BLE Device DDEE01"
+    discovery.name = "Garden Sensor"
+    assert await get_device_readable_name(discovery, None) == "Garden Sensor DDEE01"

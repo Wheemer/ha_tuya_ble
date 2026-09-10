@@ -238,7 +238,7 @@ class TuyaBLEConfigFlow(ConfigFlow, domain=DOMAIN):
                     options={CONF_ADDRESS: address, **credentials},
                 )
         choices = {
-            a: f"{i.name or 'Tuya BLE'} ({a})"
+            a: await get_device_readable_name(i, None)
             for a, i in self._discovered_devices.items()
         }
         return self.async_show_form(
@@ -266,7 +266,7 @@ class TuyaBLEConfigFlow(ConfigFlow, domain=DOMAIN):
                 {
                     vol.Required(CONF_ADDRESS): vol.In(
                         {
-                            a: f"{i.name or 'Tuya BLE'} ({a})"
+                            a: await get_device_readable_name(i, None)
                             for a, i in self._discovered_devices.items()
                         }
                     )

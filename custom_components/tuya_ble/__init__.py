@@ -21,7 +21,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 
 from .tuya_ble import TuyaBLEDevice
 
-from .local_manager import LocalTuyaBLEDeviceManager, local_options
+from .local_manager import LocalTuyaBLEDeviceManager
 from .const import (
     CONF_CATEGORY,
     CONF_LOCAL_KEY,
@@ -68,20 +68,6 @@ CREDENTIAL_OPTION_KEYS = (
 
 # How long unloading waits for a disconnect before giving up on it.
 DISCONNECT_TIMEOUT = 15
-
-
-async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Drop obsolete account fields without changing BLE identity or entities."""
-    if entry.version > 2:
-        return False
-    if entry.version < 2:
-        hass.config_entries.async_update_entry(
-            entry,
-            data=local_options(entry.data),
-            options=local_options(entry.options),
-            version=2,
-        )
-    return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

@@ -5,7 +5,12 @@
         },
         "error": {},
         "flow_title": "{name}",
-        "step": {}
+        "step": {
+            "local_pair": {
+                "title": "Parear seu dispositivo",
+                "description": "Coloque o dispositivo no modo de pareamento e selecione **Enviar**.\n\nFeche os aplicativos do celular conectados ao dispositivo."
+            }
+        }
     },
     "entity": {
         "binary_sensor": {

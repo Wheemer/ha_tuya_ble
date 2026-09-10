@@ -5,7 +5,12 @@
         },
         "error": {},
         "flow_title": "{name}",
-        "step": {}
+        "step": {
+            "local_pair": {
+                "title": "配对设备",
+                "description": "将设备置于配对模式，然后选择 **提交**。\n\n关闭手机上已连接此设备的应用。"
+            }
+        }
     },
     "entity": {
         "binary_sensor": {

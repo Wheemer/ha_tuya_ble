@@ -32,6 +32,10 @@
                     "category": "Kategorie (z. B. szjqr für Fingerbots)",
                     "device_name": "Gerätename (optional)"
                 }
+            },
+            "local_pair": {
+                "title": "Gerät koppeln",
+                "description": "Versetze das Gerät in den Kopplungsmodus und wähle dann **Absenden**.\n\nSchließe alle Handy-Apps, die mit dem Gerät verbunden sind."
             }
         }
     },

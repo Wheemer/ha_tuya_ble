@@ -5,7 +5,12 @@
         },
         "error": {},
         "flow_title": "{name}",
-        "step": {}
+        "step": {
+            "local_pair": {
+                "title": "Associa il dispositivo",
+                "description": "Metti il dispositivo in modalità di associazione, quindi seleziona **Invia**.\n\nChiudi le app del telefono collegate al dispositivo."
+            }
+        }
     },
     "entity": {
         "binary_sensor": {

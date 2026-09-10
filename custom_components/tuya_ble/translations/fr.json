@@ -5,7 +5,12 @@
         },
         "error": {},
         "flow_title": "{name}",
-        "step": {}
+        "step": {
+            "local_pair": {
+                "title": "Associer votre appareil",
+                "description": "Mettez l’appareil en mode appairage, puis sélectionnez **Valider**.\n\nFermez toute application du téléphone connectée à l’appareil."
+            }
+        }
     },
     "entity": {
         "binary_sensor": {

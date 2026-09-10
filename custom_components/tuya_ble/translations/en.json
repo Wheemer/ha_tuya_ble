@@ -50,8 +50,8 @@
                 "title": "Choose a device"
             },
             "local_pair": {
-                "description": "Device: {address}. Put this device into pairing mode now, close any phone app connected to it, then select Submit to continue. Home Assistant will generate and save its key locally. If the device stops flashing, put it into pairing mode again and retry. Local pairing is experimental and currently supports the classic protocol-3 exchange. Unknown models can be paired, but need a device mapping before measurement entities can be created.",
-                "title": "Put the device into pairing mode"
+                "title": "Pair your device",
+                "description": "Put the device into pairing mode, then select **Submit**.\n\nClose any phone app connected to the device."
             }
         }
     },

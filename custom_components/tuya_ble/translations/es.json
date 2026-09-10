@@ -5,7 +5,12 @@
         },
         "error": {},
         "flow_title": "{name}",
-        "step": {}
+        "step": {
+            "local_pair": {
+                "title": "Empareja tu dispositivo",
+                "description": "Pon el dispositivo en modo de emparejamiento y selecciona **Enviar**.\n\nCierra cualquier aplicación del teléfono conectada al dispositivo."
+            }
+        }
     },
     "entity": {
         "binary_sensor": {

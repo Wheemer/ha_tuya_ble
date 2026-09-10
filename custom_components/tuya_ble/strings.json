@@ -2,7 +2,8 @@
     "config": {
         "abort": {
             "no_unconfigured_devices": "No unconfigured devices found.",
-            "not_supported": "The Bluetooth advertisement does not contain Tuya service data."
+            "not_supported": "The Bluetooth advertisement does not contain Tuya service data.",
+            "pairing_cancelled": "Setup cancelled."
         },
         "error": {
             "invalid_uuid": "UUID looks invalid",
@@ -52,6 +53,14 @@
             "local_pair": {
                 "title": "Pair your device",
                 "description": "Put the device into pairing mode, then select **Submit**.\n\nClose any phone app connected to the device."
+            },
+            "local_retry": {
+                "title": "Pairing didn’t finish",
+                "description": "Put the device back into pairing mode, then choose **Try again**.\n\nNo device has been added to Home Assistant.",
+                "menu_options": {
+                    "retry_pair": "Try again",
+                    "cancel": "Cancel"
+                }
             }
         }
     },

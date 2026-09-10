@@ -126,6 +126,7 @@ async def test_pairing_error_offers_retry_without_creating_entry():
     flow.hass = Mock()
     flow._pending_address = ADDRESS
     flow.async_show_form = Mock()
+    flow.async_show_menu = Mock()
     flow.async_create_entry = Mock()
     with patch(
         "custom_components.tuya_ble.config_flow.pair_local",
@@ -133,9 +134,10 @@ async def test_pairing_error_offers_retry_without_creating_entry():
     ):
         await flow.async_step_local_pair({})
     flow.async_create_entry.assert_not_called()
-    assert flow.async_show_form.call_args.kwargs["errors"] == {
-        "base": "local_verification_failed"
-    }
+    assert flow.async_show_menu.call_args.kwargs["menu_options"] == [
+        "retry_pair",
+        "cancel",
+    ]
 
 
 @pytest.mark.asyncio
@@ -212,3 +214,51 @@ async def test_pair_local_verifies_reconnect_and_never_repeats_uncertain_bind(
     assert result["verified"] is True
     assert commands == (["verify"] if attempted else [0, 1, "verify"])
     assert opened == closed
+
+
+async def test_identity_waits_for_delayed_scan_response():
+    import asyncio
+
+    callbacks = []
+    remove = Mock()
+    product = b"gvygg3m8"
+    key = hashlib.md5(product).digest()
+    info = SimpleNamespace(
+        address=ADDRESS,
+        service_data={"0000a201-0000-1000-8000-00805f9b34fb": b"\0" + product},
+        manufacturer_data={},
+    )
+
+    def register(*args):
+        callbacks.append(args[1])
+        return remove
+
+    async def sweep(*args):
+        callbacks[0](info, None)
+
+        # Deliver the scan response after the sweep itself has returned.
+        def response():
+            info.manufacturer_data = {
+                2000: b"\0\x03\0\0\0\0"
+                + AES.new(key, AES.MODE_CBC, key).encrypt(IDENTITY["uuid"].encode())
+            }
+            callbacks[0](info, None)
+
+        asyncio.get_running_loop().call_later(0.01, response)
+
+    with (
+        patch.object(lp.bluetooth, "async_register_callback", side_effect=register),
+        patch.object(lp.bluetooth, "async_request_active_scan", side_effect=sweep),
+    ):
+        assert await lp.discover_identity(Mock(), ADDRESS) == IDENTITY
+    remove.assert_called_once()
+
+
+async def test_retry_screen_requires_explicit_retry_before_pairing():
+    flow = TuyaBLEConfigFlow()
+    flow.async_show_menu = Mock()
+    with patch.object(flow, "async_step_local_pair", new_callable=AsyncMock) as pair:
+        await flow.async_step_local_retry()
+        pair.assert_not_awaited()
+        await flow.async_step_retry_pair()
+        pair.assert_awaited_once_with({})

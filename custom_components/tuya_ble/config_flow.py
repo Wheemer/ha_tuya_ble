@@ -359,12 +359,29 @@ class TuyaBLEConfigFlow(ConfigFlow, domain=DOMAIN):
                     data={CONF_ADDRESS: self._pending_address},
                     options=options,
                 )
+        if errors.get("base") in {
+            "local_identity_missing",
+            "local_cannot_connect",
+            "local_verification_failed",
+        }:
+            return await self.async_step_local_retry()
         return self.async_show_form(
             step_id="local_pair",
             data_schema=vol.Schema({}),
             errors=errors,
             description_placeholders={"address": self._pending_address},
         )
+
+    async def async_step_local_retry(self, user_input=None):
+        return self.async_show_menu(
+            step_id="local_retry", menu_options=["retry_pair", "cancel"]
+        )
+
+    async def async_step_retry_pair(self, user_input=None):
+        return await self.async_step_local_pair({})
+
+    async def async_step_cancel(self, user_input=None):
+        return self.async_abort(reason="pairing_cancelled")
 
     def _collect_discovered_devices(self) -> None:
         """Collect connectable, not yet configured Tuya BLE devices."""

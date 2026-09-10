@@ -142,24 +142,24 @@ class LocalPairingError(Exception):
 
 
 async def discover_identity(hass, address):
-    """Obtain identity via HA's existing scanners, including ESPHome proxies."""
-    identity = None
+    """Wait for a complete identity, including delayed proxy scan responses."""
+    received = asyncio.get_running_loop().create_future()
 
     def discovered(info, _change):
-        nonlocal identity
-        if info.address.upper() == address.upper():
-            candidate = decode_identity(info.manufacturer_data, info.service_data)
-            if candidate:
-                identity = candidate
+        if info.address.upper() != address.upper() or received.done():
+            return
+        candidate = decode_identity(info.manufacturer_data, info.service_data)
+        if candidate:
+            received.set_result(candidate)
 
     unsubscribe = bluetooth.async_register_callback(
-        hass, discovered, {"address": address}, bluetooth.BluetoothScanningMode.PASSIVE
+        hass, discovered, {"address": address}, bluetooth.BluetoothScanningMode.ACTIVE
     )
+    scan_task = None
     try:
-        # Recent HA has an explicit one-shot scan API. Earlier versions use the
-        # supported active-advertisement helper. Neither opens a second proxy client.
         if sweep := getattr(bluetooth, "async_request_active_scan", None):
-            await sweep(hass, 8)
+            scan_task = asyncio.create_task(sweep(hass, 15))
+            identity = await asyncio.wait_for(received, 20)
         else:
             info = await bluetooth.async_process_advertisements(
                 hass,
@@ -167,11 +167,16 @@ async def discover_identity(hass, address):
                 is not None,
                 {"address": address},
                 bluetooth.BluetoothScanningMode.ACTIVE,
-                10,
+                20,
             )
-            discovered(info, None)
+            identity = decode_identity(info.manufacturer_data, info.service_data)
+    except TimeoutError as err:
+        raise LocalPairingError("local_identity_missing") from err
     finally:
         unsubscribe()
+        if scan_task is not None:
+            scan_task.cancel()
+            await asyncio.gather(scan_task, return_exceptions=True)
     if identity is None:
         raise LocalPairingError("local_identity_missing")
     if identity["protocol_major"] != 3:

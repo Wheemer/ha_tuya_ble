@@ -117,7 +117,10 @@ def test_invalid_first_uuid_does_not_mask_valid_second_uuid():
 
 
 @pytest.mark.parametrize("payload", [b"\x00newmodel", b"\x01encrypted-model"])
-async def test_new_models_discovered_without_cloud_or_product_allowlist(payload):
+@pytest.mark.parametrize("cloud_failure", ["cache", "credentials", None])
+async def test_new_models_discovered_without_cloud_or_product_allowlist(
+    payload, cloud_failure
+):
     """Unmapped models must remain discoverable before any cloud login."""
     discovery = advertisement({SERVICE_UUIDS[0]: payload}, name="New BLE model")
     flow = TuyaBLEConfigFlow()
@@ -125,11 +128,27 @@ async def test_new_models_discovered_without_cloud_or_product_allowlist(payload)
     flow.async_set_unique_id = AsyncMock()
     flow._abort_if_unique_id_configured = Mock()
     flow._manager = SimpleNamespace(
-        build_cache=AsyncMock(side_effect=ConnectionError("Cloud unavailable")),
-        get_device_credentials=AsyncMock(return_value=None),
+        build_cache=AsyncMock(
+            side_effect=(
+                ConnectionError("Cloud unavailable")
+                if cloud_failure == "cache"
+                else None
+            )
+        ),
+        get_device_credentials=AsyncMock(
+            return_value=None,
+            side_effect=(
+                ConnectionError("Cloud unavailable")
+                if cloud_failure == "credentials"
+                else None
+            ),
+        ),
     )
     flow.async_step_user = AsyncMock(return_value={"type": "menu"})
     result = await flow.async_step_bluetooth(discovery)
     assert result == {"type": "menu"}
     assert flow._discovery_info is discovery
     flow.async_step_user.assert_awaited_once()
+    assert flow.context["title_placeholders"]["name"] == "New BLE model DDEE01"
+    if cloud_failure == "cache":
+        flow._manager.get_device_credentials.assert_not_awaited()

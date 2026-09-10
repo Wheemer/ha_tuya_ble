@@ -571,14 +571,11 @@ class TuyaBLEConfigFlow(ConfigFlow, domain=DOMAIN):
             self._manager = HASSTuyaBLEDeviceManager(self.hass, self._data)
         try:
             await self._manager.build_cache()
+            name = await get_device_readable_name(discovery_info, self._manager)
         except Exception:
-            _LOGGER.exception("Error building cloud cache during bluetooth step")
-        self.context["title_placeholders"] = {
-            "name": await get_device_readable_name(
-                discovery_info,
-                self._manager,
-            )
-        }
+            _LOGGER.exception("Error looking up cloud metadata during bluetooth step")
+            name = await get_device_readable_name(discovery_info, None)
+        self.context["title_placeholders"] = {"name": name}
         return await self.async_step_user()
 
     async def async_step_user(

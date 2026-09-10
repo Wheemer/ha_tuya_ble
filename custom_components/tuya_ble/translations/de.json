@@ -13,7 +13,7 @@
         "flow_title": "{name}",
         "step": {
             "user": {
-                "title": "Tuya BLE",
+                "title": "Local Tuya BLE",
                 "description": "Wie sollen die Gerätedaten (Device ID, UUID, Local Key) beschafft werden?",
                 "menu_options": {
                     "manual": "Manuell eingeben (kein Cloud-Zugriff nötig)"

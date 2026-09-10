@@ -21,7 +21,7 @@
         "flow_title": "{name}",
         "step": {
             "user": {
-                "title": "Tuya BLE",
+                "title": "Local Tuya BLE",
                 "description": "Pair a device locally or import credentials you already have. No account or internet access is required.",
                 "menu_options": {
                     "local_device": "Pair locally (no account required)",
@@ -656,7 +656,7 @@
         },
         "step": {
             "init": {
-                "title": "Tuya BLE options",
+                "title": "Local Tuya BLE options",
                 "menu_options": {
                     "manual": "Edit credentials manually",
                     "settings": "Connection settings"

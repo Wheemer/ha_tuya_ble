@@ -1,13 +1,8 @@
 black==24.8.0
 codespell==2.4.1
-flake8==3.9.2
-homeassistant==2025.1.4
-mypy==0.901
-pydocstyle==6.1.1
-pylint-strict-informational==0.1
-pylint==2.8.2
-pytest-asyncio
+homeassistant==2026.9.1
+pytest-homeassistant-custom-component==0.13.364
 pytest-cov
 pyserial
 PyCryptodome
-pytest-homeassistant-custom-component>0.13.0
+bleak-retry-connector>=3.6.0

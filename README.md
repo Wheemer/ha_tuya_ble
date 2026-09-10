@@ -1,466 +1,105 @@
-# Home Assistant support for Tuya BLE devices
+<div align="center">
 
-## Overview
+# Local Tuya BLE
 
-This integration is an amalgamation of a number of community maintained forks. It should be considered **unstable** quality at this time.
+### Local pairing and control of Tuya Bluetooth devices in Home Assistant
 
-See full list of forks:
-https://github.com/ha-tuya-ble/ha_tuya_ble/issues/1
+[![HACS Custom](https://img.shields.io/badge/HACS-CUSTOM-FD7E14?style=for-the-badge&logo=home-assistant&logoColor=white&labelColor=555555)](https://github.com/hacs/integration)
+[![Home Assistant](https://img.shields.io/badge/HOME%20ASSISTANT-2026.8%2B-41BDF5?style=for-the-badge&logo=home-assistant&logoColor=white&labelColor=555555)](https://www.home-assistant.io/)
+[![Latest release](https://img.shields.io/github/v/release/Wheemer/local-tuya-ble?style=for-the-badge&logo=github&logoColor=white&label=RELEASE&labelColor=555555&color=22C55E)](https://github.com/Wheemer/local-tuya-ble/releases/latest)
+[![License](https://img.shields.io/badge/LICENSE-MIT-64748B?style=for-the-badge&labelColor=555555)](LICENSE)
 
+[Install](#install) | [Configure](#configure) | [Migration](#migration-from-tuya-ble) | [Devices](DEVICES.md) | [Troubleshooting](#troubleshooting) | [Contributing](#contributing)
 
-_Inspired by code of [@redphx](https://github.com/redphx/poc-tuya-ble-fingerbot) & forked from https://github.com/PlusPlus-ua/ha_tuya_ble_ 
+</div>
 
-_Original HASS component forked from https://github.com/PlusPlus-ua/ha_tuya_ble_
+Local Tuya BLE is a Home Assistant custom integration for Tuya Bluetooth Low Energy devices running their original firmware. It provides local discovery, experimental local pairing, and encrypted Bluetooth communication without a Tuya account or cloud connection.
 
-_This forks base is from https://github.com/markusg1234/ha_tuya_ble_
+This project builds on [ha-tuya-ble/ha_tuya_ble](https://github.com/ha-tuya-ble/ha_tuya_ble), preserving its device mappings while adding local setup, credential migration, and validated discovery.
 
+## What It Does
 
-## Installation
+- Validates Tuya Bluetooth advertisements to avoid treating unrelated Bluetooth devices as Tuya devices.
+- Uses available product information for readable discovery names.
+- Discovers advertising devices before pairing mode and keeps unknown Tuya models discoverable.
+- Pairs supported protocol-3 BLE devices locally and verifies the generated key on a fresh connection.
+- Imports existing saved credentials without an account login.
+- Migrates existing Tuya BLE entries while preserving entity IDs, device settings, and unavailable sensors.
+- Uses Home Assistant Bluetooth adapters and connectable Bluetooth proxies.
 
-Place the `custom_components` folder in your configuration directory (or add its contents to an existing `custom_components` folder). Alternatively install via [HACS](https://hacs.xyz/).
+## Local-Only Boundary
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=ha-tuya-ble&repository=ha_tuya_ble&category=integration)
+Setup and device communication do not use Tuya cloud login, Smart Life login, account refresh, or the official Tuya integration. There is no cloud fallback for unsupported pairing protocols. No firmware flashing or DNS changes are required for the supported BLE pairing path.
 
-## Usage
+This integration is for **Tuya BLE devices**. Wi-Fi switches that advertise over Bluetooth for Wi-Fi setup are not supported by the local pairing feature. Bluetooth Mesh devices require a different protocol. Downloading the integration and its dependencies still requires obtaining those files.
 
-### Local pairing in this fork (experimental)
+## Install
 
-1. Home Assistant discovers nearby advertising Tuya BLE devices. Discovery does not require an account, a supported-model allowlist, or putting the device into pairing mode first.
-2. Click **Add** on the discovered device. Manual integration setup also offers **Pair locally** or **Import existing credentials**.
-3. The setup dialog asks you to put the device into pairing mode. Do that, close Smart Life or other connected apps, and submit the form to continue.
-4. Home Assistant discovers the internal device identity, generates and saves a local key, pairs the device, and verifies that key on a fresh connection. Existing device mappings create the entities.
+[![Open your Home Assistant instance and add this repository to HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Wheemer&repository=local-tuya-ble&category=integration)
 
-No firmware flashing, vendor account, cloud lookup, or manual key extraction is used by this path. Bluetooth must be in range of Home Assistant or a connectable proxy. A device must be advertising to be discovered; battery insertion or a button press may be needed to wake some models.
+If the button does not work:
 
-The stock SGS01 (`gvygg3m8`, protocol 3.1) has passed a hardware test of local binding and subsequent encrypted reconnection. The tested sensor had previously been removed from Smart Life and advertised as unbound. This is not yet proof for every protocol-3 device, a never-registered factory-new device, sustained measurements, or power-cycle recovery. Other protocol variants are detected but local provisioning currently rejects them with an explanation. Unknown models are not hidden; they may pair successfully but still require measurement mappings.
+1. Open HACS and choose **Custom repositories** from its menu.
+2. Add `https://github.com/Wheemer/local-tuya-ble` as an **Integration** repository.
+3. Install **Local Tuya BLE**.
+4. Restart Home Assistant to load the integration.
+5. Open **Settings > Devices & services** and select a discovered device, or choose **Add integration > Local Tuya BLE**.
 
-If pairing mode expires, put the device into pairing mode again and retry. Generated credentials are saved privately using Home Assistant storage before the binding write. After an interrupted attempt, retries verify the same key rather than generating a replacement or blindly repeating the binding write. Back up Home Assistant's configuration: it contains the credentials needed to reconnect. Do not delete the pending pairing record to fix a timeout.
+For a manual install, copy `custom_components/tuya_ble` into Home Assistant's `/config/custom_components/` directory and restart Home Assistant. Restart after updating integration files as well.
 
-Existing configured devices, entity IDs, and unavailable sensors are preserved. On upgrade, obsolete account-login fields are removed from this integration while BLE keys, identity, metadata, and connection settings are retained. No devices are reset during this migration.
+## Configure
 
-### Local only, including existing devices
+### Pair a device locally
 
-This fork has no Tuya cloud login, mobile-app login, credential lookup, account refresh, or dependency on the official Tuya integration. Device setup and communication are local. Installing the integration and its Python dependencies still requires obtaining those files, as with other Home Assistant integrations.
+1. Wait for the device to appear under **Discovered**. It must be advertising and within range of Home Assistant or a connectable Bluetooth proxy.
+2. Click **Add**. Manual setup also offers **Pair locally**.
+3. When prompted, put the device into pairing mode, close any app connected to it, and submit the form.
+4. The integration obtains its identity, saves generated credentials, pairs it, and checks those credentials on a new connection.
+5. Supported product mappings create its entities.
 
-Existing saved credentials continue working without account access. You can also import credentials you already have from a trusted backup. Some protocol variants require both `localKey` and `secKey`; importing them does not log in to an app.
+Discovery does not require pairing mode first. Some battery devices need to be woken before they advertise. If pairing mode expires, enable it again and use the retry option.
 
-Local provisioning uses the standard classic protocol-3 exchange, without an SGS01-specific restriction. Other pairing protocols need their own implementation; discovery remains open to them. There is no cloud fallback when a pairing protocol is unsupported.
+### Import existing credentials
 
-## Supported devices list
+Choose **Import existing credentials** when you already have the device identity and keys from a trusted backup. Some protocol variants require both `localKey` and `secKey`. Importing credentials does not contact an app or cloud service.
 
-See a device marked Experimental you have? We could use real world testing feedback (send in a pull request with testing notes, or open an issue for gaps)
+### Local Pairing Support
 
-<table>
-  <thead>
-    <tr>
-      <th>Category</th>
-      <th>Category ID</th>
-      <th>Device / Model</th>
-      <th>Product ID</th>
-      <th>Notes</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td rowspan="8"><strong>Fingerbots</strong></td>
-      <td rowspan="8"><code>szjqr</code></td>
-      <td>Fingerbot</td>
-      <td><code>ltak7e1p</code>, <code>y6kttvd6</code>, <code>yrnk7mnn</code>, <code>nvr2rocq</code>, <code>bnt7wajf</code>, <code>rvdceqjh</code>, <code>5xhbk964</code></td>
-      <td>Original device, first in category, powered by CR2 battery.</td>
-    </tr>
-    <tr>
-      <td>Adaprox Fingerbot</td>
-      <td><code>y6kttvd6</code></td>
-      <td>Built-in battery with USB type C charging.</td>
-    </tr>
-    <tr>
-      <td>Fingerbot Plus</td>
-      <td><code>blliqpsj</code>, <code>ndvkgsrm</code>, <code>yiihr7zh</code>, <code>neq16kgd</code>, <code>mknd4lci</code>, <code>riecov42</code>, <code>bs3ubslo</code>, <code>6jcvqwh0</code>, <code>h8kdwywx</code></td>
-      <td>Almost same as original, has sensor button for manual control. See programming note below.</td>
-    </tr>
-    <tr>
-      <td>CubeTouch 1s</td>
-      <td><code>3yqdo5yt</code></td>
-      <td>Built-in battery with USB type C charging.</td>
-    </tr>
-    <tr>
-      <td>CubeTouch II</td>
-      <td><code>xhf790if</code></td>
-      <td>Built-in battery with USB type C charging.</td>
-    </tr>
-    <tr>
-      <td>Tuya BLE Switch Robot (SB02)</td>
-      <td><code>4ctjfrzq</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>Tuya BLE Fingerbot SM-FB-01B</td>
-      <td><code>gnpbj0bq</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>Nedis SmartLife Finger Robot</td>
-      <td><code>yn4x5fa7</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td rowspan="6"><strong>Temperature and humidity sensors</strong></td>
-      <td rowspan="6"><code>wsdcg</code>, <code>zwjcy</code></td>
-      <td>Soil moisture sensor</td>
-      <td><code>ojzlzzsw</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>SRB-PM01 Soil Moisture Sensor</td>
-      <td><code>jabotj1z</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>Temperature Humidity Sensor</td>
-      <td><code>jm6iasmb</code>, <code>tr0kabuq</code>, <code>iv7hudlj</code>, <code>vlzqwckk</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>Temperature Humidity Sensor SS302</td>
-      <td><code>6lbesej0</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>TH05 Temperature Sensor</td>
-      <td><code>vyfoip9h</code>, <code>1jvidcsf</code></td>
-      <td>Experimental</td>
-    </tr>
-    <tr>
-      <td>Soil Thermo-Hygrometer</td>
-      <td><code>tv6peegl</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td><strong>CO2 sensors</strong></td>
-      <td><code>co2bj</code></td>
-      <td>CO2 Detector</td>
-      <td><code>59s19z5m</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td rowspan="25"><strong>Smart Locks</strong></td>
-      <td rowspan="25"><code>ms</code>, <code>jtmspro</code></td>
-      <td>Smart Lock</td>
-      <td><code>ludzroix</code>, <code>isk2p555</code>, <code>gumrixyt</code>, <code>uamrw6h3</code>, <code>sidhzylo</code>, <code>mqc2hevy</code>, <code>7a4xvbtt</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>Primebras Athenas Lock</td>
-      <td><code>6fibxtph</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>Foxgard Smart Fingerprint Door Lock</td>
-      <td><code>99gv5nmz</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>Guard Dog Security Smart Lock (BS_PLD01)</td>
-      <td><code>wgv4haro</code></td>
-      <td>Experimental</td>
-    </tr>
-    <tr>
-      <td>HU06 Smart Lock</td>
-      <td><code>stugc8dl</code></td>
-      <td>Experimental</td>
-    </tr>
-    <tr>
-      <td>Raybuke K7 Pro+</td>
-      <td><code>xicdxood</code></td>
-      <td>Supports BLE unlock and other small features.</td>
-    </tr>
-    <tr>
-      <td>Fingerprint Smart Lock</td>
-      <td><code>k53ok3u9</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>T55D</td>
-      <td><code>bvclwu9b</code></td>
-      <td>Battery &amp; Door status.</td>
-    </tr>
-    <tr>
-      <td>Gimdow A1 Pro Max</td>
-      <td><code>rlyxv7pe</code></td>
-      <td>Experimental.</td>
-    </tr>
-    <tr>
-      <td>A1 Ultra-JM</td>
-      <td><code>hc7n0urm</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>LA-01 Smart lock</td>
-      <td><code>oyqux5vv</code></td>
-      <td>Experimental.</td>
-    </tr>
-    <tr>
-      <td>B16</td>
-      <td><code>ajk32biq</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>CS-9 Smart Fingerprint Lock</td>
-      <td><code>pyawczjj</code></td>
-      <td>Experimental.</td>
-    </tr>
-    <tr>
-      <td>Smart Cylinder Lock</td>
-      <td><code>z7lj676i</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>TEKXDD Fingerprint Smart Lock</td>
-      <td><code>okkyfgfs</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>Orion Smart Door Handle Lock</td>
-      <td><code>a6nttc41</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>Smart Cylinder Lock (LVD11_BK)</td>
-      <td><code>hs21i377</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>Smart Lock</td>
-      <td><code>kholoaew</code></td>
-      <td>Partial.</td>
-    </tr>
-    <tr>
-      <td>CentralAcesso</td>
-      <td><code>ebd5e0uauqx0vfsp</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>Drawer Lock CTL20H / CTL20H_8018 SmartLock</td>
-      <td><code>y2yaegze</code>, <code>qcrilcpr</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>Gainsborough Liberty BLE Lock (GGC01HA)</td>
-      <td><code>yfqp0shy</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>BSTUOKEY Invisible Lock</td>
-      <td><code>kpn4zaf7</code></td>
-      <td>Invisible induction lock.</td>
-    </tr>
-    <tr>
-      <td>XCase NX-4964 Lock Box</td>
-      <td><code>qicggi0m</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>EL605A Knob Lock</td>
-      <td><code>2hmqh0ty</code></td>
-      <td>BLE unlock via DP71. Requires the FD50 device-info handshake.</td>
-    </tr>
-    <tr>
-      <td>Example Product Securosmart lock</td>
-      <td><code>uyf1ewof</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td rowspan="2"><strong>Climate</strong></td>
-      <td><code>wk</code></td>
-      <td>Thermostatic Radiator Valve</td>
-      <td><code>drlajpqc</code>, <code>nhj2j7su</code>, <code>zmachryv</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td><code>wkf</code></td>
-      <td>Thermostatic Radiator Valve</td>
-      <td><code>llflaywg</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td><strong>Smart water bottle</strong></td>
-      <td><code>znhsb</code></td>
-      <td>Smart water bottle</td>
-      <td><code>cdlandip</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td rowspan="3"><strong>Irrigation computer</strong></td>
-      <td rowspan="3"><code>ggq</code>, <code>slj</code></td>
-      <td>Irrigation computer</td>
-      <td><code>6pahkcau</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>2-outlet irrigation computer</td>
-      <td><code>hfgdqhho</code>, <code>fnlw6npo</code>, <code>qycalacn</code>, <code>jjqi2syk</code>, <code>jntxv3q4</code></td>
-      <td>Also known as: SGW02, SGW08, YZD02B, MOES BWV-YC02-EU-GY, Kogan SmarterHome KASMWATMRDA / KASMWTV2LVA.</td>
-    </tr>
-    <tr>
-      <td>RESTMO BT Water Meter (FML026A)</td>
-      <td><code>mqqna0px</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td rowspan="6"><strong>Covers</strong></td>
-      <td rowspan="6"><code>cl</code></td>
-      <td>Moes Roller Blind Motor</td>
-      <td><code>4pbr8eig</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>Amazon HeyBlinds</td>
-      <td><code>vlwf3ud6</code>, <code>v3fzfd2y</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>Tuya Smart Curtain Robot</td>
-      <td><code>kcy0x4pi</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>Blinds Drive</td>
-      <td><code>qqdxfdht</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>LY Curtain Motor Robot</td>
-      <td><code>ulughw4g</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>AOK AM24 Venetian Blinds Motor</td>
-      <td><code>dy4dh1q0</code></td>
-      <td>Experimental.</td>
-    </tr>
-    <tr>
-      <td rowspan="9"><strong>Water valve controller</strong></td>
-      <td rowspan="9"><code>sfkzq</code></td>
-      <td>Water valve controller</td>
-      <td><code>nxquc5lb</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>NOUS L11 Bluetooth Smart Garden Water Timer</td>
-      <td><code>46zia2nz</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>WT-03W Diivoo Smart Water Timer for Garden Hose</td>
-      <td><code>1fcnd8xk</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>ZX-7378 Smart Irrigation Controller</td>
-      <td><code>ldcdnigc</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>Rainpoint TTV102B</td>
-      <td><code>e1poaiwa</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>Valve controller</td>
-      <td><code>svhikeyq</code>, <code>0axr5s0b</code>, <code>d4vpmigg</code></td>
-      <td>Also known as YZD05 water valve/irrigation timer.</td>
-    </tr>
-    <tr>
-      <td>HCT-611 Water Timer</td>
-      <td><code>tqzkwarw</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>Unistyle WT-04W Water Timer</td>
-      <td><code>ojrvmfkk</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>MoistenLand Water Timer</td>
-      <td><code>8t5hebn0</code></td>
-      <td>Experimental</td>
-    </tr>
-    <tr>
-      <td rowspan="5"><strong>Lights</strong></td>
-      <td rowspan="5">Multiple (e.g. <code>dd</code>, <code>dj</code>)</td>
-      <td>Strip Lights / Magiacous RGB light bar</td>
-      <td><code>nvfrtxlq</code></td>
-      <td rowspan="4">Most BLE light products should be supported as the Light class tries to get device description from the cloud when they are added. But only Strip Lights (category_id 'dd') Magiacous RGB light bar (product_id 'nvfrtxlq') has been tested.<br><br>See note on Bluetooth Mesh light compatibility below.</td>
-    </tr>
-    <tr>
-      <td>Magiacous Floor Lamp</td>
-      <td><code>umzu0c2y</code></td>
-    </tr>
-    <tr>
-      <td>Comfamoli Sunset Lamp</td>
-      <td><code>6jxcdae1</code></td>
-    </tr>
-    <tr>
-      <td>RGB Strip Light</td>
-      <td><code>0qgrjxum</code></td>
-    </tr>
-    <tr>
-      <td>LED BULB B509Z2</td>
-      <td><code>bpqbwf8y</code></td>
-      <td>Experimental</td>
-    </tr>
-    <tr>
-      <td><strong>Wireless switches</strong></td>
-      <td><code>wxkg</code></td>
-      <td>Arlec Smart Button</td>
-      <td><code>kpzc6pm8</code>, <code>ja5osu5g</code></td>
-      <td>Single/Double click and Long press support via events.</td>
-    </tr>
-    <tr>
-      <td rowspan="3"><strong>Battery</strong></td>
-      <td rowspan="3"><code>dcb</code></td>
-      <td>Parkside Performance Smart Battery 4Ah</td>
-      <td><code>z5ztlw3k</code>, <code>vllfabvs</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>Parkside Performance Smart Battery 8Ah</td>
-      <td><code>ajrhf1aj</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>Parkside Performance Smart Battery 12Ah</td>
-      <td><code>fay1puxy</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td><strong>Humidifier</strong></td>
-      <td><code>jsq</code></td>
-      <td>Dituo DT-T2190A Aroma Diffuser</td>
-      <td><code>if1nolcm</code></td>
-      <td>Experimental</td>
-    </tr>
-    <tr>
-      <td><strong>Robot mowers</strong></td>
-      <td><code>gcj</code></td>
-      <td>Parkside Robot Mower PAMRC 250 A1 (BT) City</td>
-      <td><code>9hdajpiw</code></td>
-      <td>Lawn mower entity (start / pause / dock), command and schedule buttons, battery, activity, warning, error and work logs, schedule and zones, running time, rain delay, rain mode, hedgehog protection and blade stop. Experimental</td>
-    </tr>
-  </tbody>
-</table>
+Local binding and encrypted reconnection have been verified on a stock **SGS01 soil sensor**, product ID `gvygg3m8`, protocol 3.1, after removal from Smart Life. The implementation supports the classic protocol-3 exchange without a model-specific allowlist, but this is not a claim that every protocol-3 device has been tested.
 
-### Fingerbots Programming Note
-All features available in Home Assistant, programming (series of actions) is implemented for Fingerbot Plus.
-For programming exposed entities: 'Program' (switch), 'Repeat forever', 'Repeats count', 'Idle position' and 'Program' (text). Format of program text is: `position[/time];...` where position is in percents, optional time is in seconds (zero if missing).
+Other pairing protocols are rejected with an explanation. Unknown models remain discoverable and may need entity mappings even if pairing succeeds. Never-registered factory-new devices, power-cycle recovery, and sustained measurements across every supported mapping still need broader hardware validation.
 
-### Lights Compatibility Note
-Note that some light products are using Bluetooth Mesh protocols and not BLE and so aren't compatible with this integration. That's probably the case if your product isn't at least found (even if non-working) by this integration.
+See [Supported Devices](DEVICES.md) for inherited entity mappings and experimental models. Device mappings and local-pairing compatibility are separate.
 
-## Note that the original hasn't been updated in a long time, still, Support original developer @PlusPlus-ua:
+## Migration From Tuya BLE
 
-I am working on this integration in Ukraine. Our country was subjected to brutal aggression by Russia. The war still continues. The capital of Ukraine - Kyiv, where I live, and many other cities and villages are constantly under threat of rocket attacks. Our air defense forces are doing wonders, but they also need support. So if you want to help the development of this integration, donate some money and I will spend it to support our air defense.
-<br><br>
-<p align="center">
-  <a href="https://www.buymeacoffee.com/3PaK6lXr4l"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy me an air defense"></a>
-</p>
+Back up Home Assistant before replacing the integration. This fork intentionally keeps the internal domain and folder name **`tuya_ble`** so existing configuration entries and entities can be migrated in place.
+
+1. Keep your existing Tuya BLE entries in **Devices & services**; do not delete them.
+2. Replace the previous HACS repository with this repository, or replace the integration files manually. Only one integration can occupy `custom_components/tuya_ble`.
+3. Restart Home Assistant.
+4. Check the existing devices and entities. Migration retains saved BLE credentials, identity, metadata, connection settings, and entity IDs while removing obsolete account-login fields.
+
+Unavailable sensors are preserved. They do not need to be online for their configuration to remain intact. Migration does not reset devices. Removing a device from Smart Life is a separate vendor action that may reset its pairing; it is not part of migration.
+
+## Troubleshooting
+
+- **Nothing discovered:** wake the device and check Bluetooth range and proxy connectivity. A Wi-Fi-only or Bluetooth Mesh device is not a supported BLE device.
+- **Pairing timed out:** put the device back into pairing mode, close connected apps, and retry. Check that the proxy has an available connection slot.
+- **Unsupported pairing protocol:** use existing credentials if available. This release does not have a cloud fallback.
+- **Device paired but entities are missing:** its product may need a mapping. Include the model and product ID in an issue.
+- **Interrupted pairing:** retry using the saved pending credentials. Do not delete pending pairing storage or generate replacement keys manually.
+
+Keep Home Assistant backups private: they contain the credentials needed to reconnect. Remove keys, account details, and Wi-Fi passwords from anything posted publicly.
+
+## Contributing
+
+Report discovery problems and request device support in [Issues](https://github.com/Wheemer/local-tuya-ble/issues). Include the model, product ID, Home Assistant version, integration version, and relevant sanitized logs. Please distinguish discovery, pairing, and entity-mapping problems.
+
+New devices are welcome. Follow [AGENTS.md](AGENTS.md) for code conventions, translations, and relevant tests. Unsupported models should not be hidden just because a mapping has not been written yet.
+
+## Credits
+
+Based on the work of [ha-tuya-ble](https://github.com/ha-tuya-ble/ha_tuya_ble), [PlusPlus-ua](https://github.com/PlusPlus-ua/ha_tuya_ble), [markusg1234](https://github.com/markusg1234/ha_tuya_ble), [redphx](https://github.com/redphx/poc-tuya-ble-fingerbot), and the community contributors. Original copyright and the [MIT license](LICENSE) are retained.
+
+You can also [support the original developer, PlusPlus-ua](https://www.buymeacoffee.com/3PaK6lXr4l).

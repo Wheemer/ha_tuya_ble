@@ -1,6 +1,6 @@
 {
   "domain": "tuya_ble",
-  "name": "Tuya BLE",
+  "name": "Local Tuya BLE",
   "bluetooth": [
     {
       "connectable": true,
@@ -12,22 +12,18 @@
     }
   ],
   "codeowners": [
-    "@PlusPlus-ua",
-    "@Snuffy2",
-    "@kancelott",
-    "@scastiello",
-    "@CloCkWeRX"
+    "@Wheemer"
   ],
   "config_flow": true,
   "dependencies": [
     "bluetooth"
   ],
-  "documentation": "https://github.com/ha-tuya-ble/ha_tuya_ble",
+  "documentation": "https://github.com/Wheemer/local-tuya-ble",
   "iot_class": "local_push",
-  "issue_tracker": "https://github.com/ha-tuya-ble/ha_tuya_ble/issues",
+  "issue_tracker": "https://github.com/Wheemer/local-tuya-ble/issues",
   "requirements": [
     "pycryptodome>=3.20.0",
     "bleak-retry-connector>=3.6.0"
   ],
-  "version": "0.12.0"
+  "version": "0.13.0"
 }

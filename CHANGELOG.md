@@ -1,3 +1,11 @@
+# 0.13.0 — Local Tuya BLE
+
+- Publish the local-only fork as Local Tuya BLE.
+- Add local BLE pairing, saved-credential migration, validated discovery, readable discovery names, and explicit retry handling.
+- Preserve existing configuration entries and unavailable entities using the tuya_ble domain.
+- Document tested SGS01 pairing and separate inherited device mappings from provisioning support.
+- Wi-Fi commissioning experiments are not included.
+
 # Changelog
 
 All notable changes to this project will be documented in this file.

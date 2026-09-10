@@ -344,6 +344,7 @@ class TuyaBLEData:
     product: TuyaBLEProductInfo
     manager: LocalTuyaBLEDeviceManager
     coordinator: TuyaBLECoordinator
+    use_schema_entities: bool = False
 
 
 @dataclass

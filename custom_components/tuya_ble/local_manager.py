@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 from .tuya_ble import AbstaractTuyaBLEDeviceManager, TuyaBLEDeviceCredentials
+from .schema import parse_schema
 from .const import (
     CONF_UUID,
     CONF_LOCAL_KEY,
@@ -64,6 +65,10 @@ class LocalTuyaBLEDeviceManager(AbstaractTuyaBLEDeviceManager):
             data.get(key) for key in (CONF_UUID, CONF_DEVICE_ID, CONF_PRODUCT_ID)
         ):
             return None
+        functions = data.get(CONF_FUNCTIONS)
+        statuses = data.get(CONF_STATUS_RANGE)
+        if data.get("schema"):
+            functions, statuses = parse_schema(data["schema"])
         return TuyaBLEDeviceCredentials(
             uuid=data[CONF_UUID],
             local_key=data.get(CONF_LOCAL_KEY, ""),
@@ -73,8 +78,8 @@ class LocalTuyaBLEDeviceManager(AbstaractTuyaBLEDeviceManager):
             device_name=data.get(CONF_DEVICE_NAME),
             product_model=data.get(CONF_PRODUCT_MODEL),
             product_name=data.get(CONF_PRODUCT_NAME),
-            functions=data.get(CONF_FUNCTIONS),
-            status_range=data.get(CONF_STATUS_RANGE),
+            functions=functions,
+            status_range=statuses,
             sec_key=data.get(CONF_SEC_KEY),
             local_key_hex=data.get(CONF_LOCAL_KEY_HEX),
         )

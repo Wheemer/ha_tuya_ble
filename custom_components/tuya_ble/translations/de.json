@@ -641,14 +641,16 @@
             "invalid_local_key": "Local Key sieht ungültig aus (mindestens 6 Zeichen)",
             "invalid_device_id": "Device ID ist erforderlich",
             "invalid_product_id": "Product ID ist erforderlich",
-            "invalid_category": "Kategorie ist erforderlich"
+            "invalid_category": "Kategorie ist erforderlich",
+            "invalid_schema": "Ungültiges Produktschema."
         },
         "step": {
             "init": {
                 "title": "Tuya-BLE-Optionen",
                 "menu_options": {
                     "manual": "Zugangsdaten manuell bearbeiten",
-                    "settings": "Verbindungseinstellungen"
+                    "settings": "Verbindungseinstellungen",
+                    "schema": "Gerätedefinition"
                 }
             },
             "manual": {
@@ -670,6 +672,13 @@
                 "data": {
                     "keep_connection": "BLE-Verbindung dauerhaft halten",
                     "idle_disconnect_delay": "Leerlaufzeit bis zur Trennung (Sekunden)"
+                }
+            },
+            "schema": {
+                "title": "Gerätedefinition",
+                "description": "Das JSON-Array des Produktschemas einfügen. Kein Download und keine Kopplung.",
+                "data": {
+                    "schema": "Schema-JSON"
                 }
             }
         }

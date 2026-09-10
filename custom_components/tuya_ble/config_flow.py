@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 from typing import Any
+import json
 from bleak.exc import BleakError
 import voluptuous as vol
 from homeassistant.config_entries import (
@@ -46,6 +47,7 @@ from .const import (
 from .devices import devices_database, get_device_readable_name
 from .local_pairing import LocalPairingError, pair_local
 from .local_manager import local_options
+from .schema import parse_schema
 from .tuya_ble.security import TuyaBLESecurityMaterial
 
 
@@ -165,7 +167,40 @@ class TuyaBLEOptionsFlow(OptionsFlowWithConfigEntry):
     """Edit local credentials and connection policy."""
 
     async def async_step_init(self, user_input=None):
-        return self.async_show_menu(step_id="init", menu_options=["settings", "manual"])
+        return self.async_show_menu(
+            step_id="init", menu_options=["settings", "manual", "schema"]
+        )
+
+    async def async_step_schema(self, user_input=None):
+        errors = {}
+        if user_input is not None:
+            try:
+                parse_schema(user_input["schema"])
+            except (ValueError, TypeError):
+                errors["schema"] = "invalid_schema"
+            else:
+                return self.async_create_entry(
+                    title="",
+                    data={
+                        **local_options(self.config_entry.options),
+                        "schema": json.loads(user_input["schema"]),
+                    },
+                )
+        defaults = self.config_entry.options.get("schema", [])
+        return self.async_show_form(
+            step_id="schema",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        "schema",
+                        default=(user_input or {}).get(
+                            "schema", json.dumps(defaults, ensure_ascii=False, indent=2)
+                        ),
+                    ): TextSelector(TextSelectorConfig(multiline=True)),
+                }
+            ),
+            errors=errors,
+        )
 
     async def async_step_settings(self, user_input=None):
         if user_input is not None:
